@@ -44,9 +44,14 @@
   <p class="text-gray-500 text-sm mb-1 leading-relaxed">
     You are the <strong>interpreter</strong>. Listen to each segment, then interpret it into the other language.
   </p>
-  <p class="text-gray-500 text-sm mb-2">13 segments · English ↔ 普通话 · scored 0–5 · <strong class="text-gray-700">29/45 to pass</strong></p>
-  <p class="text-gray-400 text-xs mb-8">你是口译员。听每一段，然后翻译成另一种语言。听到提示音后开始翻译。</p>
+  <p class="text-gray-500 text-sm mb-2">13 segments · English ↔ your language · scored 0–5 · <strong class="text-gray-700">29/45 to pass</strong></p>
+  <p class="text-gray-400 text-xs mb-6">你是口译员。听每一段，然后翻译成另一种语言。听到提示音后开始翻译。</p>
 
+  <!-- Language selector -->
+  <label class="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Your language</label>
+  <div id="lang-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-8"></div>
+
+  <label class="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Choose a scenario</label>
   <div class="space-y-3" id="topic-list"></div>
 
   <button id="btn-start" disabled
@@ -235,6 +240,7 @@ const MAX_SCORE = 45, PASS_MARK = 29;
 let allDialogues=[], dialogue=null, segments=[], currentIdx=0;
 let segScores=[], recTimer=null, recognition=null, finalTranscript='';
 let audioEl=null;
+let LANGS=[], selectedLang='zh', selectedTopicId=null;
 
 const scoreCol = s => s>=4?'#059669':s>=3?'#d97706':s>=1?'#dc2626':'#9ca3af';
 const scoreLabel = s => s===5?'Perfect ✓':s===4?'Very good ✓':s===3?'Pass ✓':s===2?'Partial':s===1?'Minimal':'Not conveyed';
@@ -267,8 +273,14 @@ function playChime() {
 
 // ── init ────────────────────────────────────────
 async function init() {
-  const res = await fetch('/api/dialogues');
-  allDialogues = await res.json();
+  // languages
+  LANGS = await (await fetch('/api/languages')).json();
+  const savedLang = localStorage.getItem('ccl-lang');
+  if (savedLang && LANGS.some(l => l.key === savedLang)) selectedLang = savedLang;
+  renderLangGrid();
+
+  // dialogues (topic/scenario are language-neutral)
+  allDialogues = await (await fetch('/api/dialogues')).json();
   const list = $('topic-list');
   const emojis = {Health:'🏥', Employment:'💼','Community Services':'🏛️', Legal:'⚖️'};
   allDialogues.forEach(d => {
@@ -283,11 +295,24 @@ async function init() {
           <span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">${d.topic}</span>
         </div>
         <p class="text-xs text-gray-500 mt-0.5">${d.scenario}</p>
-        <p class="text-xs text-gray-400 mt-0.5">${d.scenarioZh}</p>
       </div>
       <div class="text-right text-xs text-gray-300 flex-shrink-0 mt-1"><div>${d.segmentCount} segs</div><div>${d.scoredCount} scored</div></div>`;
     btn.addEventListener('click', () => selectTopic(d.id, btn));
     list.appendChild(btn);
+  });
+}
+
+function renderLangGrid() {
+  const grid = $('lang-grid');
+  grid.innerHTML = '';
+  LANGS.forEach(l => {
+    const sel = l.key === selectedLang;
+    const btn = document.createElement('button');
+    btn.dataset.key = l.key;
+    btn.className = `lang-btn rounded-xl py-2.5 px-2 text-sm font-semibold border-2 transition-all flex items-center justify-center gap-1.5 ${sel?'border-brand-600 bg-brand-50 text-brand-700':'border-gray-200 bg-white text-gray-600 hover:border-brand-300'}`;
+    btn.innerHTML = `<span class="text-base">${l.flag}</span><span>${l.label}</span>`;
+    btn.addEventListener('click', () => { selectedLang = l.key; localStorage.setItem('ccl-lang', l.key); renderLangGrid(); });
+    grid.appendChild(btn);
   });
 }
 
@@ -296,15 +321,16 @@ function selectTopic(id, btn) {
     b.className = 'topic-btn w-full text-left bg-white border-2 border-gray-200 hover:border-brand-300 rounded-2xl p-4 flex items-start gap-3 transition-all';
   });
   btn.className = 'topic-btn selected w-full text-left bg-brand-50 border-2 border-brand-600 rounded-2xl p-4 flex items-start gap-3 transition-all';
-  dialogue = allDialogues.find(d => d.id === id);
+  selectedTopicId = id;
   $('btn-start').disabled = false;
-  $('btn-start').textContent = `Start: ${dialogue.title} →`;
+  const t = allDialogues.find(d => d.id === id);
+  $('btn-start').textContent = `Start: ${t.title} →`;
 }
 $('btn-start').addEventListener('click', startSession);
 
 async function startSession() {
-  if (!dialogue) return;
-  const res = await fetch(`/api/dialogue/${dialogue.id}`);
+  if (!selectedTopicId) return;
+  const res = await fetch(`/api/dialogue/${selectedTopicId}?lang=${selectedLang}`);
   dialogue = await res.json();
   segments = dialogue.segments;
   currentIdx = 0;
@@ -375,7 +401,7 @@ $('btn-play').addEventListener('click', playSegment);
 function playSegment() {
   const seg = segments[currentIdx];
   showState('playing');
-  const path = `/audio/${dialogue.id}/${seg.id}.mp3`;
+  const path = `/audio/${seg.audioLang}/${dialogue.id}/${seg.id}.mp3`;
   audioEl = new Audio(path);
   audioEl.onerror = () => playTTS(seg);
   audioEl.onended = () => afterAudio(seg);
@@ -457,7 +483,7 @@ async function submitScore() {
   let result;
   try {
     const r = await fetch('/api/score', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({dialogueId:dialogue.id, segmentId:seg.id, transcript}) });
+      body: JSON.stringify({dialogueId:dialogue.id, segmentId:seg.id, transcript, lang:selectedLang}) });
     result = await r.json();
     if (result.error) result = {score:0,passed:false,feedback:`Error: ${result.error}`,corrections:[],keyPointsCovered:[]};
   } catch { result = {score:0,passed:false,feedback:'Scoring unavailable.',corrections:[],keyPointsCovered:[]}; }
