@@ -379,8 +379,12 @@ async function submitScore() {
       }),
     });
     result = await r.json();
+    // surface API-level errors (e.g. out of credits)
+    if (result.error) {
+      result = { score: 0, passed: false, feedback: `Scoring unavailable: ${result.error}`, corrections: [], keyPointsCovered: [] };
+    }
   } catch {
-    result = { score: 0, passed: false, feedback: 'Scoring unavailable.', corrections: [], keyPointsCovered: [] };
+    result = { score: 0, passed: false, feedback: 'Could not reach the scoring service.', corrections: [], keyPointsCovered: [] };
   }
 
   scores.push(result.score ?? 0);

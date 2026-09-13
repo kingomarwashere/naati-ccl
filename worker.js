@@ -204,9 +204,15 @@ Evaluate their English response. Focus on:
 3. Naturalness — does it sound like natural spoken Australian English?
 4. Completeness — did they cover the key points?
 
-Score 1–10 where 8+ = near-native, 6–7 = communicative with noticeable issues, below 6 = significant errors that would cause confusion.
+Use this scale — be encouraging, this is a learner not a professional:
+- 8–10: Very good. Minor issues only, clearly communicates everything needed.
+- 6–7: Communicative. The message gets across despite some grammar or vocabulary issues.
+- 4–5: Partial. Some relevant content but missing key points or hard to follow.
+- 2–3: Attempted. English words used but the message is largely incomplete or unclear.
+- 1: Almost no relevant content — only if the response is completely off-topic.
+Never give 0. Always give at least 1 for any genuine attempt.
 
-Respond ONLY with valid JSON, no markdown:
+Respond with ONLY a raw JSON object. No markdown, no code fences, no explanation — just the JSON:
 {
   "score": <integer 1-10>,
   "passed": <boolean, true if 6+>,
@@ -286,9 +292,22 @@ export default {
           }),
         });
 
-        const ai     = await resp.json();
-        const raw    = ai.content?.[0]?.text ?? '{}';
-        const result = JSON.parse(raw);
+        const ai  = await resp.json();
+
+        // Anthropic returns an error object when the key is invalid / out of credits
+        if (ai.type === 'error') {
+          const msg = ai.error?.message ?? 'Anthropic API error';
+          return Response.json({ error: msg }, { status: 502, headers: cors });
+        }
+
+        let raw = ai.content?.[0]?.text ?? '{}';
+        // extract JSON regardless of markdown fences or leading text
+        const jsonMatch = raw.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error(`No JSON in Claude response: ${raw.slice(0, 200)}`);
+        const result = JSON.parse(jsonMatch[0]);
+        // safety clamp: never show 0 to a learner
+        result.score  = Math.max(1, Math.min(10, result.score ?? 1));
+        result.passed = result.score >= 6;
         return Response.json(result, { headers: cors });
       } catch (e) {
         return Response.json({ error: e.message }, { status: 500, headers: cors });
