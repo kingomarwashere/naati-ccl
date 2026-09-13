@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Practice – CCL Practice</title>
+  <title>Practice English – CCL Practice</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -26,76 +26,70 @@
     }
     .pulse-ring { animation: pulse-ring 1.4s ease-out infinite; }
     [hidden] { display:none !important; }
+    .border-3 { border-width: 3px; }
   </style>
 </head>
 <body class="font-sans bg-gray-50 min-h-screen antialiased">
 
 <nav class="bg-white border-b border-gray-100 px-4 h-14 flex items-center justify-between sticky top-0 z-10">
   <a href="/" class="font-bold text-brand-700 text-lg tracking-tight">CCL Practice</a>
-  <span class="text-xs font-semibold bg-brand-100 text-brand-700 px-3 py-1 rounded-full">Mandarin · 普通话</span>
+  <a href="/pricing" class="text-xs font-semibold bg-brand-600 text-white px-3 py-1.5 rounded-full hover:bg-brand-700 transition-colors">Upgrade</a>
 </nav>
 
 <!-- ── SETUP ─────────────────────────────────────── -->
-<div id="screen-setup" class="max-w-xl mx-auto px-4 py-12">
-  <h1 class="text-3xl font-extrabold mb-1">Start a practice session</h1>
-  <p class="text-gray-500 mb-10 text-sm">Dialogues alternate between English and Mandarin. Interpret each segment in the opposite language, just like the real exam.</p>
+<div id="screen-setup" class="max-w-xl mx-auto px-4 py-10">
+  <h1 class="text-3xl font-extrabold mb-1">Speak English. Get scored.</h1>
+  <p class="text-gray-500 mb-8 text-sm leading-relaxed">
+    听英文提示，用英文回答，AI 分析你的语法、词汇和自然度。<br>
+    <span class="text-gray-400">Hear the prompt in English, respond in English, get instant AI feedback.</span>
+  </p>
 
-  <div class="bg-white rounded-2xl border border-gray-200 p-7 space-y-5">
-    <div>
-      <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Choose a topic</p>
-      <div id="topic-grid" class="grid grid-cols-3 gap-2"></div>
-    </div>
+  <div class="space-y-3" id="topic-list"></div>
 
-    <div class="bg-brand-50 border border-brand-100 rounded-xl p-4 text-sm text-brand-800 space-y-1.5">
-      <p class="font-bold">How this works</p>
-      <p class="text-brand-700">🔊 A segment plays in English <em>or</em> Mandarin</p>
-      <p class="text-brand-700">🎙️ You interpret it into the <em>other</em> language</p>
-      <p class="text-brand-700">🤖 AI scores you against the NAATI CCL rubric</p>
-    </div>
-
-    <button id="btn-start" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-xl text-base transition-colors" disabled>
-      Select a topic to begin
-    </button>
-  </div>
+  <button id="btn-start" disabled
+    class="mt-6 w-full bg-brand-600 hover:bg-brand-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-bold py-4 rounded-xl text-base transition-colors">
+    Choose a scenario above
+  </button>
 </div>
 
 <!-- ── SESSION ────────────────────────────────────── -->
 <div id="screen-session" hidden class="max-w-xl mx-auto px-4 py-6">
 
-  <!-- Progress bar -->
-  <div class="mb-5">
-    <div class="flex justify-between text-xs font-semibold text-gray-400 mb-1.5">
-      <span>Segment <span id="seg-num">1</span> / <span id="seg-total">5</span></span>
-      <span id="seg-topic-label" class="text-brand-700"></span>
-    </div>
-    <div class="bg-gray-200 rounded-full h-1.5">
-      <div id="progress-bar" class="bg-brand-500 h-1.5 rounded-full transition-all duration-500" style="width:0%"></div>
-    </div>
+  <!-- Scenario banner -->
+  <div id="scenario-banner" class="bg-brand-50 border border-brand-100 rounded-xl px-4 py-3 mb-4">
+    <p class="text-xs font-bold uppercase tracking-wider text-brand-700 mb-0.5">Scenario</p>
+    <p id="scenario-en" class="text-sm text-gray-700 font-medium"></p>
+    <p id="scenario-zh" class="text-xs text-gray-400 mt-0.5"></p>
   </div>
 
-  <!-- Direction banner -->
-  <div id="direction-banner" class="rounded-xl px-4 py-3 mb-4 flex items-center gap-3 text-sm font-semibold"></div>
+  <!-- Progress -->
+  <div class="flex justify-between text-xs text-gray-400 mb-1.5">
+    <span>Exchange <span id="seg-num">1</span> / <span id="seg-total">4</span></span>
+    <span id="seg-topic" class="text-brand-700 font-semibold"></span>
+  </div>
+  <div class="bg-gray-200 rounded-full h-1.5 mb-5">
+    <div id="progress-bar" class="bg-brand-500 h-1.5 rounded-full transition-all duration-500" style="width:0%"></div>
+  </div>
 
   <!-- Card -->
   <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
 
-    <!-- Speaker label -->
     <div class="bg-gray-50 border-b border-gray-100 px-5 py-2.5 flex items-center gap-2">
-      <div class="w-2 h-2 rounded-full bg-brand-500"></div>
-      <span id="seg-speaker" class="text-sm font-semibold text-gray-700"></span>
+      <div class="w-2 h-2 rounded-full bg-gray-400"></div>
+      <span id="seg-speaker" class="text-xs font-bold text-gray-500 uppercase tracking-wide"></span>
     </div>
 
-    <!-- State: ready -->
-    <div id="state-ready" class="px-6 py-10 text-center">
-      <p class="text-4xl mb-4">🎧</p>
-      <p class="text-gray-400 text-sm mb-6">The segment will play <strong>once</strong> — no replay, just like the real exam.</p>
+    <!-- state: ready to play -->
+    <div id="state-ready" class="px-6 py-8 text-center">
+      <p class="text-3xl mb-3">🔊</p>
+      <p class="text-gray-400 text-sm mb-5">Listen to the prompt, then speak your response in English.</p>
       <button id="btn-play" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-10 py-3.5 rounded-xl text-sm transition-colors">
-        ▶ Play segment
+        ▶ Play prompt
       </button>
     </div>
 
-    <!-- State: playing -->
-    <div id="state-playing" hidden class="px-6 py-10 text-center">
+    <!-- state: playing -->
+    <div id="state-playing" hidden class="px-6 py-8 text-center">
       <div class="relative inline-flex items-center justify-center mb-5">
         <div class="w-16 h-16 bg-brand-200 rounded-full absolute pulse-ring"></div>
         <div class="w-16 h-16 bg-brand-500 rounded-full flex items-center justify-center relative">
@@ -104,76 +98,87 @@
           </svg>
         </div>
       </div>
-      <p class="font-semibold text-gray-700">Playing…</p>
-      <p class="text-xs text-gray-400 mt-1">Get ready to interpret</p>
+      <!-- Prompt text revealed during playback -->
+      <div id="prompt-text" class="bg-gray-50 rounded-xl px-4 py-3 text-sm text-gray-700 italic text-left leading-relaxed max-w-sm mx-auto"></div>
     </div>
 
-    <!-- State: recording -->
+    <!-- state: recording -->
     <div id="state-recording" hidden class="px-5 py-5">
-      <div class="flex items-center justify-between mb-3">
+      <!-- Goal (what to say) -->
+      <div class="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 mb-3">
+        <p class="text-xs font-bold text-amber-600 uppercase tracking-wide mb-1">Your goal 你的目标</p>
+        <p id="goal-en" class="text-sm text-gray-700 leading-snug mb-0.5"></p>
+        <p id="goal-zh" class="text-xs text-gray-500"></p>
+      </div>
+
+      <div class="flex items-center justify-between mb-2">
         <div class="flex items-center gap-2">
           <div class="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse"></div>
           <span class="text-sm font-bold text-red-600">Recording</span>
         </div>
-        <div class="flex items-center gap-3">
-          <span id="rec-timer" class="text-sm font-mono tabular-nums text-gray-500">5:00</span>
-          <button id="btn-stop" class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors">
-            ■ Stop
-          </button>
+        <div class="flex items-center gap-2">
+          <span id="rec-timer" class="text-sm font-mono text-gray-400 tabular-nums">3:00</span>
+          <button id="btn-stop" class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors">■ Done</button>
         </div>
       </div>
 
-      <!-- Live transcript -->
-      <div id="live-transcript" class="bg-gray-50 border border-gray-200 rounded-xl p-3.5 min-h-[72px] text-sm text-gray-600 leading-relaxed italic mb-3">
-        Speak now…
+      <div id="live-transcript" class="bg-gray-50 border border-gray-200 rounded-xl p-3.5 min-h-[64px] text-sm text-gray-600 leading-relaxed mb-3">
+        Speak in English now…
       </div>
 
-      <!-- Fallback text input if no Speech API -->
-      <div id="fallback-input" hidden>
-        <p class="text-xs text-amber-600 font-semibold mb-1.5">⚠ Speech recognition unavailable in this browser. Type your interpretation:</p>
-        <textarea id="manual-input" rows="3" placeholder="Type your interpretation here…"
+      <div id="fallback-wrap" hidden>
+        <p class="text-xs text-amber-600 font-semibold mb-1.5">⚠ Speech recognition not available — type your response:</p>
+        <textarea id="manual-input" rows="3" placeholder="Type your English response here…"
           class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"></textarea>
       </div>
     </div>
 
-    <!-- State: scoring -->
+    <!-- state: scoring -->
     <div id="state-scoring" hidden class="px-6 py-10 text-center">
       <div class="inline-block w-8 h-8 border-3 border-brand-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-      <p class="text-gray-600 font-medium text-sm">Scoring your interpretation…</p>
+      <p class="text-sm text-gray-500 font-medium">Analysing your English…</p>
     </div>
 
-    <!-- State: result -->
-    <div id="state-result" hidden class="px-5 py-5">
+    <!-- state: result -->
+    <div id="state-result" hidden class="px-5 py-5 space-y-4">
 
       <!-- Score row -->
-      <div class="flex items-center gap-4 mb-5">
-        <div id="score-circle" class="w-20 h-20 rounded-full flex flex-col items-center justify-center text-white font-extrabold flex-shrink-0">
+      <div class="flex items-center gap-4">
+        <div id="score-circle" class="w-20 h-20 rounded-full flex flex-col items-center justify-center text-white font-extrabold flex-shrink-0 shadow-sm">
           <span id="score-num" class="text-3xl leading-none"></span>
-          <span class="text-[10px] font-normal opacity-75 mt-0.5">/10</span>
+          <span class="text-[10px] font-normal opacity-80 mt-0.5">/10</span>
         </div>
-        <div>
-          <div id="score-verdict" class="font-bold text-base mb-0.5"></div>
+        <div class="flex-1 min-w-0">
+          <div id="score-label" class="font-extrabold text-base mb-0.5"></div>
           <div id="score-feedback" class="text-sm text-gray-500 leading-snug"></div>
         </div>
       </div>
 
-      <!-- Source revealed -->
-      <div class="bg-gray-50 rounded-xl p-3.5 mb-3">
-        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Source text</p>
-        <p id="source-revealed" class="text-sm text-gray-700 leading-relaxed"></p>
-      </div>
+      <!-- Corrections -->
+      <div id="corrections-block"></div>
 
-      <!-- Key terms -->
-      <div id="key-terms-block" class="mb-3"></div>
+      <!-- Key points checklist -->
+      <div id="keypoints-block"></div>
 
-      <!-- User's attempt -->
-      <div class="bg-gray-50 rounded-xl p-3.5 mb-5">
-        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Your interpretation</p>
+      <!-- Model answer (revealed) -->
+      <details class="group">
+        <summary class="cursor-pointer text-xs font-bold text-brand-600 hover:underline select-none">
+          Show a model answer ▾
+        </summary>
+        <div class="mt-2 bg-brand-50 border border-brand-100 rounded-xl p-3.5">
+          <p class="text-xs font-bold text-brand-700 uppercase tracking-wide mb-1">Example of a good response</p>
+          <p id="model-answer" class="text-sm text-gray-700 italic leading-relaxed"></p>
+        </div>
+      </details>
+
+      <!-- Your attempt -->
+      <div class="bg-gray-50 rounded-xl p-3.5">
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Your response</p>
         <p id="user-attempt" class="text-sm text-gray-500 italic leading-relaxed"></p>
       </div>
 
-      <button id="btn-next" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl transition-colors text-sm">
-        Next segment →
+      <button id="btn-next" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl text-sm transition-colors">
+        Next →
       </button>
     </div>
 
@@ -183,155 +188,143 @@
 <!-- ── RESULTS ─────────────────────────────────────── -->
 <div id="screen-results" hidden class="max-w-xl mx-auto px-4 py-12">
   <div class="bg-white rounded-2xl border border-gray-200 p-8 text-center">
-    <div class="text-5xl mb-4">🎉</div>
-    <h2 class="text-2xl font-extrabold mb-1">Session complete</h2>
-    <p class="text-gray-400 text-sm mb-6">Average score across all segments</p>
-    <div class="text-6xl font-extrabold mb-1">
+    <div class="text-5xl mb-3">🎉</div>
+    <h2 class="text-2xl font-extrabold mb-1">Session complete!</h2>
+    <p class="text-gray-400 text-sm mb-5">Average English score</p>
+    <div class="text-6xl font-extrabold mb-2">
       <span id="final-avg" class="text-brand-600"></span><span class="text-2xl text-gray-300">/10</span>
     </div>
-    <div id="final-verdict" class="inline-block mt-3 mb-6 px-5 py-2 rounded-full text-sm font-bold"></div>
+    <div id="final-verdict" class="inline-block mb-6 px-5 py-2 rounded-full text-sm font-bold"></div>
 
-    <div id="segment-breakdown" class="text-left space-y-2 mb-8"></div>
+    <div id="breakdown" class="text-left space-y-2 mb-8"></div>
 
     <div class="flex gap-3 justify-center">
-      <button id="btn-retry" class="border-2 border-brand-600 text-brand-600 hover:bg-brand-50 font-bold px-6 py-2.5 rounded-xl transition-colors text-sm">Try again</button>
-      <button id="btn-new-topic" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-2.5 rounded-xl transition-colors text-sm">New topic</button>
+      <button id="btn-retry" class="border-2 border-brand-600 text-brand-600 hover:bg-brand-50 font-bold px-6 py-2.5 rounded-xl text-sm transition-colors">Retry</button>
+      <button id="btn-new" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-colors">New scenario</button>
     </div>
   </div>
 </div>
 
 <script>
-// ── state ──────────────────────────────────────────────────────────
-let dialogue = null;
-let segments = [];
-let currentIdx = 0;
-let scores = [];
-let recTimer = null;
-let recognition = null;
-let finalTranscript = '';
-let selectedTopicId = null;
-let allDialogues = [];
-
-// ── helpers ────────────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
-const show = id => { const el = $(id); if (el) el.hidden = false; };
-const hide = id => { const el = $(id); if (el) el.hidden = true; };
-
-function showState(name) {
-  ['ready','playing','recording','scoring','result'].forEach(s => hide('state-' + s));
-  show('state-' + name);
+const show = id => { const e=$(id); if(e) e.hidden=false; };
+const hide = id => { const e=$(id); if(e) e.hidden=true; };
+function showState(n) {
+  ['ready','playing','recording','scoring','result'].forEach(s => hide('state-'+s));
+  show('state-'+n);
 }
 
-function scoreColor(s) {
-  return s >= 8 ? '#059669' : s >= 6 ? '#d97706' : '#dc2626';
-}
+let allDialogues=[], dialogue=null, segments=[], currentIdx=0, scores=[];
+let recTimer=null, recognition=null, finalTranscript='';
 
-const FLAG = { 'en-AU': '🇦🇺', 'zh-CN': '🇨🇳', 'zh-TW': '🇹🇼' };
-const LANG_NAME = { 'en-AU': 'English', 'zh-CN': 'Mandarin 普通话', 'zh-TW': 'Mandarin 繁體' };
+// colour helpers
+const scoreCol = s => s>=8?'#059669':s>=6?'#d97706':'#dc2626';
+const scoreLabel = s => s>=8?'Excellent ✓':s>=6?'Good pass ~':'Needs work ✗';
 
-// ── init ───────────────────────────────────────────────────────────
+// ── init ──────────────────────────────────────────
 async function init() {
-  const res = await fetch('/api/dialogues/zh');
+  const res = await fetch('/api/dialogues');
   allDialogues = await res.json();
+  renderTopicList();
+}
 
-  const grid = $('topic-grid');
-  allDialogues.forEach((d, i) => {
-    const topicEmoji = { Health:'🏥', Legal:'⚖️', 'Community Services':'🏛️' }[d.topic] || '📋';
+const topicEmoji = { Health:'🏥', Employment:'💼', 'Community Services':'🏛️', Legal:'⚖️' };
+
+function renderTopicList() {
+  const list = $('topic-list');
+  allDialogues.forEach(d => {
     const btn = document.createElement('button');
-    btn.className = 'topic-btn border-2 border-gray-200 bg-white text-gray-600 rounded-xl py-3 px-2 text-sm font-semibold transition-all hover:border-brand-300 flex flex-col items-center gap-1';
-    btn.innerHTML = `<span class="text-xl">${topicEmoji}</span><span>${d.topic}</span>`;
     btn.dataset.id = d.id;
+    btn.className = 'topic-btn w-full text-left bg-white border-2 border-gray-200 hover:border-brand-300 rounded-2xl p-4 transition-all flex items-start gap-4';
+    btn.innerHTML = `
+      <span class="text-2xl mt-0.5 flex-shrink-0">${topicEmoji[d.topic]||'📋'}</span>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="font-bold text-gray-800 text-sm">${d.title}</span>
+          <span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">${d.topic}</span>
+        </div>
+        <p class="text-xs text-gray-500 mt-0.5 leading-snug">${d.scenario}</p>
+        <p class="text-xs text-gray-400 mt-0.5">${d.scenarioZh}</p>
+      </div>
+      <span class="text-xs text-gray-300 flex-shrink-0 mt-1">${d.segmentCount} exchanges</span>`;
     btn.addEventListener('click', () => selectTopic(d.id, btn));
-    grid.appendChild(btn);
+    list.appendChild(btn);
   });
 }
 
 function selectTopic(id, btn) {
   document.querySelectorAll('.topic-btn').forEach(b => {
-    b.className = 'topic-btn border-2 border-gray-200 bg-white text-gray-600 rounded-xl py-3 px-2 text-sm font-semibold transition-all hover:border-brand-300 flex flex-col items-center gap-1';
+    b.className = 'topic-btn w-full text-left bg-white border-2 border-gray-200 hover:border-brand-300 rounded-2xl p-4 transition-all flex items-start gap-4';
   });
-  btn.className = 'topic-btn selected border-2 border-brand-600 bg-brand-50 text-brand-700 rounded-xl py-3 px-2 text-sm font-semibold transition-all flex flex-col items-center gap-1';
-  selectedTopicId = id;
+  btn.className = 'topic-btn selected w-full text-left bg-brand-50 border-2 border-brand-600 rounded-2xl p-4 transition-all flex items-start gap-4';
+  dialogue = allDialogues.find(d => d.id === id);
   $('btn-start').disabled = false;
-  $('btn-start').textContent = 'Start session →';
+  $('btn-start').textContent = `Start: ${dialogue.title} →`;
 }
 
 $('btn-start').addEventListener('click', startSession);
 
 async function startSession() {
-  if (!selectedTopicId) return;
-  const res = await fetch(`/api/dialogue/${selectedTopicId}`);
+  if (!dialogue) return;
+  const res = await fetch(`/api/dialogue/${dialogue.id}`);
   dialogue = await res.json();
   segments = dialogue.segments;
-  currentIdx = 0;
-  scores = [];
+  currentIdx = 0; scores = [];
 
+  $('scenario-en').textContent = dialogue.scenario;
+  $('scenario-zh').textContent = dialogue.scenarioZh;
   $('seg-total').textContent = segments.length;
-  $('seg-topic-label').textContent = `${dialogue.topic} · ${dialogue.title}`;
+  $('seg-topic').textContent = dialogue.topic;
 
   hide('screen-setup');
   show('screen-session');
   loadSegment();
 }
 
-// ── segment lifecycle ──────────────────────────────────────────────
+// ── segment lifecycle ─────────────────────────────
 function loadSegment() {
   const seg = segments[currentIdx];
   $('seg-num').textContent = currentIdx + 1;
-  $('progress-bar').style.width = `${(currentIdx / segments.length) * 100}%`;
   $('seg-speaker').textContent = seg.speaker;
-
-  // Direction banner
-  const fromFlag = FLAG[seg.sourceLang] || '';
-  const toFlag   = FLAG[seg.interpretLang] || '';
-  const toLang   = LANG_NAME[seg.interpretLang] || seg.interpretLang;
-  const isZhSrc  = seg.sourceLang.startsWith('zh');
-  const banner   = $('direction-banner');
-  banner.className = `rounded-xl px-4 py-3 mb-4 flex items-center gap-3 text-sm font-semibold ${isZhSrc ? 'bg-orange-50 text-orange-700 border border-orange-100' : 'bg-blue-50 text-blue-700 border border-blue-100'}`;
-  banner.innerHTML = `
-    <span class="text-xl">${fromFlag}</span>
-    <svg class="w-4 h-4 opacity-50 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-    <span class="text-xl">${toFlag}</span>
-    <span>Interpret into <strong>${toLang}</strong></span>`;
-
+  $('progress-bar').style.width = `${(currentIdx/segments.length)*100}%`;
   showState('ready');
 }
 
-// ── play ───────────────────────────────────────────────────────────
+// ── play ──────────────────────────────────────────
 $('btn-play').addEventListener('click', () => {
   const seg = segments[currentIdx];
   showState('playing');
+  $('prompt-text').textContent = `"${seg.prompt}"`;
 
-  const utter = new SpeechSynthesisUtterance(seg.sourceText);
-  utter.lang  = seg.sourceLang;
-  utter.rate  = 0.88;
-
-  // pick a voice matching the language if available
+  const utter = new SpeechSynthesisUtterance(seg.prompt);
+  utter.lang = 'en-AU';
+  utter.rate = 0.88;
   const voices = speechSynthesis.getVoices();
-  const match  = voices.find(v => v.lang === seg.sourceLang || v.lang.startsWith(seg.sourceLang.split('-')[0]));
+  const match = voices.find(v => v.lang === 'en-AU') || voices.find(v => v.lang.startsWith('en'));
   if (match) utter.voice = match;
 
-  utter.onend = () => startRecording(seg.interpretLang);
+  utter.onend = () => startRecording(seg);
   speechSynthesis.cancel();
   speechSynthesis.speak(utter);
 });
 
-// ── record ─────────────────────────────────────────────────────────
-function startRecording(interpretLang) {
+// ── record ────────────────────────────────────────
+function startRecording(seg) {
   showState('recording');
   finalTranscript = '';
-  $('live-transcript').textContent = 'Speak now…';
+  $('live-transcript').textContent = 'Speak in English now…';
+  $('goal-en').textContent = seg.goal;
+  $('goal-zh').textContent = seg.goalZh;
 
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (SR) {
-    hide('fallback-input');
+    hide('fallback-wrap');
     recognition = new SR();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = interpretLang;
-
+    recognition.lang = 'en-AU';
     recognition.onresult = e => {
-      let interim = '', final = '';
+      let final = '', interim = '';
       for (let i = 0; i < e.results.length; i++) {
         if (e.results[i].isFinal) final += e.results[i][0].transcript + ' ';
         else interim += e.results[i][0].transcript;
@@ -342,19 +335,18 @@ function startRecording(interpretLang) {
     recognition.onerror = () => {};
     recognition.start();
   } else {
-    show('fallback-input');
+    show('fallback-wrap');
     $('manual-input').value = '';
-    $('live-transcript').textContent = '';
   }
 
-  // 5-minute countdown
-  let secs = 300;
+  // 3-minute timer (enough per exchange)
+  let secs = 180;
   tick(secs);
   recTimer = setInterval(() => { secs--; tick(secs); if (secs <= 0) stopRecording(); }, 1000);
 }
 
 function tick(s) {
-  const m = Math.floor(s/60), sec = s % 60;
+  const m = Math.floor(s/60), sec = s%60;
   $('rec-timer').textContent = `${m}:${sec.toString().padStart(2,'0')}`;
 }
 
@@ -366,20 +358,18 @@ function stopRecording() {
   submitScore();
 }
 
-// ── score ──────────────────────────────────────────────────────────
+// ── score ─────────────────────────────────────────
 async function submitScore() {
   showState('scoring');
-
-  // Get transcript — recognition result or manual input
   const transcript = (
     finalTranscript.trim() ||
-    ($('manual-input').value || '').trim() ||
+    ($('manual-input')?.value || '').trim() ||
     $('live-transcript').textContent
   );
 
   let result;
   try {
-    const res = await fetch('/api/score', {
+    const r = await fetch('/api/score', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -388,9 +378,9 @@ async function submitScore() {
         transcript,
       }),
     });
-    result = await res.json();
+    result = await r.json();
   } catch {
-    result = { score: 0, passed: false, feedback: 'Scoring unavailable.', keyTerms: [] };
+    result = { score: 0, passed: false, feedback: 'Scoring unavailable.', corrections: [], keyPointsCovered: [] };
   }
 
   scores.push(result.score ?? 0);
@@ -401,33 +391,55 @@ function showResult(result, transcript) {
   showState('result');
   const seg = segments[currentIdx];
   const s = result.score ?? 0;
-  const col = scoreColor(s);
+  const col = scoreCol(s);
 
   $('score-circle').style.background = col;
   $('score-num').textContent = s;
-  $('score-verdict').textContent = s >= 8 ? '✓ Excellent' : s >= 6 ? '~ Good pass' : '✗ Needs work';
-  $('score-verdict').style.color = col;
+  $('score-label').textContent = scoreLabel(s);
+  $('score-label').style.color = col;
   $('score-feedback').textContent = result.feedback || '';
-  $('source-revealed').textContent = seg.sourceText;
+  $('model-answer').textContent = seg.modelAnswer;
   $('user-attempt').textContent = transcript || '(nothing recorded)';
 
-  // Key terms
-  const kt = $('key-terms-block');
-  if (result.keyTerms?.length) {
-    kt.innerHTML = `
-      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Key terms</p>
-      <div class="flex flex-wrap gap-1.5">
-        ${result.keyTerms.map(t => `
-          <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${t.conveyed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}">
-            ${t.conveyed ? '✓' : '✗'} ${t.en}${t.zh ? ` · ${t.zh}` : ''}
-          </span>`).join('')}
+  // Corrections
+  const corr = $('corrections-block');
+  if (result.corrections?.length) {
+    corr.innerHTML = `
+      <div>
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Corrections</p>
+        <div class="space-y-2">
+          ${result.corrections.map(c => `
+            <div class="bg-red-50 border border-red-100 rounded-xl p-3 text-sm">
+              <span class="line-through text-red-400">${c.said}</span>
+              <span class="mx-1.5 text-gray-400">→</span>
+              <span class="font-semibold text-green-700">${c.better}</span>
+              <p class="text-xs text-gray-400 mt-0.5">${c.why}</p>
+            </div>`).join('')}
+        </div>
       </div>`;
   } else {
-    kt.innerHTML = '';
+    corr.innerHTML = '';
+  }
+
+  // Key points
+  const kp = $('keypoints-block');
+  if (result.keyPointsCovered?.length) {
+    kp.innerHTML = `
+      <div>
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Key points</p>
+        <div class="flex flex-wrap gap-1.5">
+          ${result.keyPointsCovered.map(p => `
+            <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${p.covered ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-500'}">
+              ${p.covered ? '✓' : '✗'} ${p.point}
+            </span>`).join('')}
+        </div>
+      </div>`;
+  } else {
+    kp.innerHTML = '';
   }
 
   const isLast = currentIdx >= segments.length - 1;
-  $('btn-next').textContent = isLast ? 'Finish session ✓' : 'Next segment →';
+  $('btn-next').textContent = isLast ? 'Finish ✓' : 'Next exchange →';
 }
 
 $('btn-next').addEventListener('click', () => {
@@ -435,55 +447,48 @@ $('btn-next').addEventListener('click', () => {
   else { currentIdx++; loadSegment(); }
 });
 
-// ── final results ─────────────────────────────────────────────────
+// ── final results ─────────────────────────────────
 function showResults() {
   hide('screen-session');
   show('screen-results');
 
   const avg = scores.length
-    ? Math.round(scores.reduce((a,b) => a+b, 0) / scores.length * 10) / 10
+    ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length*10)/10
     : 0;
   $('final-avg').textContent = avg;
 
-  const verdict = $('final-verdict');
-  if (avg >= 7) {
-    verdict.textContent = '🎉 Likely to pass';
-    verdict.className = 'inline-block mt-3 mb-6 px-5 py-2 rounded-full text-sm font-bold bg-green-100 text-green-700';
+  const v = $('final-verdict');
+  if (avg >= 8) {
+    v.textContent = '🌟 Excellent English!'; v.className = 'inline-block mb-6 px-5 py-2 rounded-full text-sm font-bold bg-green-100 text-green-700';
+  } else if (avg >= 6) {
+    v.textContent = '👍 Communicative — keep practising'; v.className = 'inline-block mb-6 px-5 py-2 rounded-full text-sm font-bold bg-amber-100 text-amber-700';
   } else {
-    verdict.textContent = '📚 Keep practising';
-    verdict.className = 'inline-block mt-3 mb-6 px-5 py-2 rounded-full text-sm font-bold bg-amber-100 text-amber-700';
+    v.textContent = '📚 Keep going — great effort'; v.className = 'inline-block mb-6 px-5 py-2 rounded-full text-sm font-bold bg-red-100 text-red-600';
   }
 
-  $('segment-breakdown').innerHTML = scores.map((s, i) => {
+  $('breakdown').innerHTML = scores.map((s, i) => {
     const seg = segments[i];
-    const col = scoreColor(s);
-    const dir = `${FLAG[seg.sourceLang] || '?'} → ${FLAG[seg.interpretLang] || '?'}`;
     return `
       <div class="flex items-center gap-3 bg-gray-50 rounded-xl p-3">
-        <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-extrabold flex-shrink-0" style="background:${col}">${s}</div>
+        <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-extrabold flex-shrink-0" style="background:${scoreCol(s)}">${s}</div>
         <div class="text-sm">
-          <span class="font-semibold">Segment ${i+1}</span>
-          <span class="text-gray-400 ml-2">${dir} · ${seg.speaker}</span>
+          <span class="font-semibold text-gray-700">Exchange ${i+1}</span>
+          <span class="text-gray-400 ml-2 text-xs">${seg.speaker}</span>
         </div>
       </div>`;
   }).join('');
 }
 
 $('btn-retry').addEventListener('click', () => {
-  currentIdx = 0; scores = [];
-  hide('screen-results');
-  show('screen-session');
+  currentIdx=0; scores=[];
+  hide('screen-results'); show('screen-session');
   loadSegment();
 });
-
-$('btn-new-topic').addEventListener('click', () => {
-  hide('screen-results');
-  show('screen-setup');
+$('btn-new').addEventListener('click', () => {
+  hide('screen-results'); show('screen-setup');
 });
 
-// voices load async on some browsers
 speechSynthesis.onvoiceschanged = () => {};
-
 init();
 </script>
 </body>
