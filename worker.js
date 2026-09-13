@@ -1,117 +1,263 @@
-const DIALOGUES = [
-  {
-    id: 'health-1',
-    topic: 'Health',
-    title: 'GP Consultation',
-    segments: [
-      { id: 1, speaker: 'Patient', text: "Good morning. I'd like to see a doctor please. I've been having severe headaches for the past three days and I'm quite worried." },
-      { id: 2, speaker: 'Doctor', text: "I see. Can you describe the pain? Where exactly is it, and does anything make it better or worse?" },
-      { id: 3, speaker: 'Patient', text: "The pain is mostly on the left side of my head. It gets much worse when I'm in bright light or loud noise. I've been taking paracetamol but it doesn't help." },
-      { id: 4, speaker: 'Doctor', text: "Those symptoms sound like they could be migraines. I'd like to refer you to a specialist for further tests. In the meantime, I'll prescribe something stronger for the pain." },
-      { id: 5, speaker: 'Patient', text: "Thank you, doctor. Will I need to take time off work? My employer requires a medical certificate if I'm absent for more than two days." }
-    ]
-  },
-  {
-    id: 'legal-1',
-    topic: 'Legal',
-    title: 'Legal Aid Appointment',
-    segments: [
-      { id: 1, speaker: 'Solicitor', text: "Thank you for coming in. I understand you've received a notice to appear in court. Can you tell me what the matter is about?" },
-      { id: 2, speaker: 'Client', text: "Yes. I received a fine for not having a valid train ticket, but I didn't understand the inspector's instructions at the time because of my limited English." },
-      { id: 3, speaker: 'Solicitor', text: "I see. That's a relevant point. The court may consider language barriers as a mitigating factor. We can apply for an interpreter for your court appearance." },
-      { id: 4, speaker: 'Client', text: "What will happen if I can't pay the fine? I'm on a temporary visa and I'm worried this might affect my visa status." },
-      { id: 5, speaker: 'Solicitor', text: "A fine alone typically doesn't affect your visa. However, I strongly recommend appearing in court rather than ignoring the notice. Failing to appear is a more serious offence." }
-    ]
-  },
-  {
-    id: 'community-1',
-    topic: 'Community Services',
-    title: 'Centrelink Appointment',
-    segments: [
-      { id: 1, speaker: 'Officer', text: "Hello, come in and take a seat. I can see you've applied for the JobSeeker payment. Have you been looking for work since your last job ended?" },
-      { id: 2, speaker: 'Applicant', text: "Yes, I've been applying for jobs every week. I'm required to do twelve job searches per fortnight according to my mutual obligation requirements." },
-      { id: 3, speaker: 'Officer', text: "That's correct. I can see you've been meeting your requirements. Your payment should continue. Do you have any changes to your circumstances I should know about?" },
-      { id: 4, speaker: 'Applicant', text: "Yes, I started some part-time work last week. I worked eight hours and earned two hundred and forty dollars. Do I need to report this?" },
-      { id: 5, speaker: 'Officer', text: "Yes, you must report all income within fourteen days. Your payment will be adjusted based on what you earn, but you won't necessarily lose your payment entirely." }
-    ]
-  }
-];
+// Each segment: { id, speaker, sourceLang, interpretLang, sourceText }
+// sourceLang = language of the audio played
+// interpretLang = language the user must interpret INTO
 
-const SCORE_PROMPT = (segment, transcript, language) => `You are an expert NAATI CCL examiner evaluating a spoken interpretation.
+const DIALOGUES = {
+  zh: [
+    {
+      id: 'zh-health-1',
+      language: 'Mandarin',
+      langCode: 'zh-CN',
+      topic: 'Health',
+      title: 'GP Consultation',
+      segments: [
+        {
+          id: 1,
+          speaker: 'Patient',
+          sourceLang: 'en-AU',
+          interpretLang: 'zh-CN',
+          sourceText: "Good morning. I've been having really bad headaches for the past three days and I'm quite worried it might be something serious.",
+        },
+        {
+          id: 2,
+          speaker: '医生',
+          sourceLang: 'zh-CN',
+          interpretLang: 'en-AU',
+          sourceText: '请问您的头痛是持续性的，还是时好时坏？疼痛主要在哪个位置，程度有多严重？',
+        },
+        {
+          id: 3,
+          speaker: 'Patient',
+          sourceLang: 'en-AU',
+          interpretLang: 'zh-CN',
+          sourceText: "It comes and goes, mostly in the morning. The pain is on the left side of my head and gets much worse in bright light or loud noise. I've been taking paracetamol but it barely helps.",
+        },
+        {
+          id: 4,
+          speaker: '医生',
+          sourceLang: 'zh-CN',
+          interpretLang: 'en-AU',
+          sourceText: '您最近有没有出现恶心或呕吐的情况？这种头痛对您的日常生活和工作有多大影响？',
+        },
+        {
+          id: 5,
+          speaker: 'Patient',
+          sourceLang: 'en-AU',
+          interpretLang: 'zh-CN',
+          sourceText: "Yes, I've had nausea but no vomiting. It's significantly affecting my work — I can't concentrate and have had to take two days off. My employer needs a medical certificate if I'm absent for more than two days.",
+        },
+        {
+          id: 6,
+          speaker: '医生',
+          sourceLang: 'zh-CN',
+          interpretLang: 'en-AU',
+          sourceText: '根据您描述的症状，您很可能患有偏头痛。我会给您开一张转诊单，让神经科专科医生为您进行详细检查，同时我也会开一些更有效的处方药物来缓解疼痛。',
+        },
+      ],
+    },
+    {
+      id: 'zh-legal-1',
+      language: 'Mandarin',
+      langCode: 'zh-CN',
+      topic: 'Legal',
+      title: 'Traffic Infringement',
+      segments: [
+        {
+          id: 1,
+          speaker: 'Solicitor',
+          sourceLang: 'en-AU',
+          interpretLang: 'zh-CN',
+          sourceText: "Thank you for coming in. I understand you've received a traffic infringement notice and you're disputing it. Can you explain what happened?",
+        },
+        {
+          id: 2,
+          speaker: '当事人',
+          sourceLang: 'zh-CN',
+          interpretLang: 'en-AU',
+          sourceText: '我上个月收到了一张闯红灯的罚单，但我确实没有看到红灯，因为路口的指示牌被一棵大树的树枝遮住了，完全看不见。',
+        },
+        {
+          id: 3,
+          speaker: 'Solicitor',
+          sourceLang: 'en-AU',
+          interpretLang: 'zh-CN',
+          sourceText: "A partially obscured traffic signal is a strong mitigating factor. Do you have any evidence — photographs, dashcam footage, or witnesses who can confirm the obstruction?",
+        },
+        {
+          id: 4,
+          speaker: '当事人',
+          sourceLang: 'zh-CN',
+          interpretLang: 'en-AU',
+          sourceText: '我当时立刻下车拍了照片，清楚地显示树枝遮挡了红灯信号。另外，我的同事也在车上，可以出庭作证。',
+        },
+        {
+          id: 5,
+          speaker: 'Solicitor',
+          sourceLang: 'en-AU',
+          interpretLang: 'zh-CN',
+          sourceText: "Excellent. With this evidence we can contest the fine and potentially have it dismissed. I'll also advise you to lodge a formal complaint with the council about the dangerous obstruction.",
+        },
+      ],
+    },
+    {
+      id: 'zh-community-1',
+      language: 'Mandarin',
+      langCode: 'zh-CN',
+      topic: 'Community Services',
+      title: 'Centrelink — JobSeeker',
+      segments: [
+        {
+          id: 1,
+          speaker: '申请人',
+          sourceLang: 'zh-CN',
+          interpretLang: 'en-AU',
+          sourceText: '你好，我想申请失业救济金。我上个月刚失去工作，在那家公司一共做了五年，上周才收到正式的解雇通知。',
+        },
+        {
+          id: 2,
+          speaker: 'Officer',
+          sourceLang: 'en-AU',
+          interpretLang: 'zh-CN',
+          sourceText: "I can help you with that. To apply for the JobSeeker Payment you'll need to provide proof of identity, your termination letter, your last three payslips, and details of any assets or savings you currently hold.",
+        },
+        {
+          id: 3,
+          speaker: '申请人',
+          sourceLang: 'zh-CN',
+          interpretLang: 'en-AU',
+          sourceText: '我有解雇信和过去三个月的工资单。我目前没有其他收入，但我有一个储蓄账户，里面大约有一万两千元，另外我还有一辆价值六千元左右的二手车。',
+        },
+        {
+          id: 4,
+          speaker: 'Officer',
+          sourceLang: 'en-AU',
+          interpretLang: 'zh-CN',
+          sourceText: "Those assets are within the allowable limit for a single person. You'll also need to sign a Job Plan and meet your mutual obligation requirements, which means applying for at least eight jobs every fortnight.",
+        },
+        {
+          id: 5,
+          speaker: '申请人',
+          sourceLang: 'zh-CN',
+          interpretLang: 'en-AU',
+          sourceText: '我完全理解，我已经开始积极找工作了。请问审核大概需要多长时间？在审核期间我还能维持我的医疗卡吗？',
+        },
+      ],
+    },
+  ],
+};
 
-English source segment:
-"${segment.text}"
-Speaker: ${segment.speaker}
+const SCORE_PROMPT = ({ sourceText, sourceLang, interpretLang, userTranscript }) => {
+  const isEnToZh = sourceLang.startsWith('en') && interpretLang.startsWith('zh');
+  const isZhToEn = sourceLang.startsWith('zh') && interpretLang.startsWith('en');
 
-The candidate's interpretation (in ${language}, transcribed):
-"${transcript}"
+  const direction = isEnToZh
+    ? 'English → Mandarin Chinese'
+    : isZhToEn
+    ? 'Mandarin Chinese → English'
+    : `${sourceLang} → ${interpretLang}`;
 
-Score this interpretation using NAATI CCL marking criteria:
-- Accuracy of meaning transfer (key points conveyed)
-- Terminology (domain-specific terms handled correctly)
-- Completeness (no significant omissions)
+  return `You are a NAATI CCL examiner evaluating a spoken interpretation attempt.
 
-Respond with ONLY valid JSON (no markdown):
+Direction: ${direction}
+Source (what the candidate heard):
+"${sourceText}"
+
+Candidate's interpretation (transcribed speech):
+"${userTranscript}"
+
+Score this interpretation strictly using NAATI CCL marking criteria:
+- Accuracy: Were all key facts and meaning transferred?
+- Terminology: Were domain-specific terms correctly translated?
+- Completeness: Were any significant information points omitted?
+- Register: Was the appropriate formality level maintained?
+
+A score of 6-7 is a borderline pass. 8-10 is strong. Below 6 is a fail.
+
+Respond with ONLY valid JSON, no markdown, no explanation outside the JSON:
 {
-  "score": <number 0-10>,
-  "passed": <boolean, true if score >= 6>,
-  "feedback": "<1-2 sentence feedback>",
+  "score": <integer 0-10>,
+  "passed": <boolean>,
+  "feedback": "<one or two sentences of actionable feedback>",
   "keyTerms": [
-    {"term": "<English term>", "conveyed": <boolean>, "note": "<brief note>"}
+    { "en": "<English term>", "zh": "<Chinese equivalent>", "conveyed": <boolean> }
   ]
 }`;
+};
 
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const { pathname } = url;
 
-    // CORS for API
-    const corsHeaders = {
+    const cors = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
     };
 
-    if (request.method === 'OPTIONS') {
-      return new Response(null, { headers: corsHeaders });
+    if (request.method === 'OPTIONS') return new Response(null, { headers: cors });
+
+    // GET /api/languages — list available language groups
+    if (pathname === '/api/languages') {
+      const langs = Object.keys(DIALOGUES).map(k => ({
+        code: k,
+        label: DIALOGUES[k][0].language,
+        langCode: DIALOGUES[k][0].langCode,
+        count: DIALOGUES[k].length,
+      }));
+      return Response.json(langs, { headers: cors });
     }
 
-    // API routes
-    if (pathname === '/api/dialogues') {
-      return Response.json(DIALOGUES.map(d => ({
-        id: d.id, topic: d.topic, title: d.title, segmentCount: d.segments.length
-      })), { headers: corsHeaders });
+    // GET /api/dialogues/:lang — list dialogues for a language
+    const matchList = pathname.match(/^\/api\/dialogues\/(\w+)$/);
+    if (matchList) {
+      const group = DIALOGUES[matchList[1]];
+      if (!group) return new Response('Not found', { status: 404 });
+      const list = group.map(({ id, topic, title, segments }) => ({
+        id, topic, title, segmentCount: segments.length,
+      }));
+      return Response.json(list, { headers: cors });
     }
 
-    if (pathname.startsWith('/api/dialogue/')) {
-      const id = pathname.split('/').pop();
-      const dialogue = DIALOGUES.find(d => d.id === id);
+    // GET /api/dialogue/:id — full dialogue including segments
+    const matchOne = pathname.match(/^\/api\/dialogue\/(.+)$/);
+    if (matchOne) {
+      const id = matchOne[1];
+      const dialogue = Object.values(DIALOGUES).flat().find(d => d.id === id);
       if (!dialogue) return new Response('Not found', { status: 404 });
-      return Response.json(dialogue, { headers: corsHeaders });
+      return Response.json(dialogue, { headers: cors });
     }
 
+    // POST /api/score
     if (pathname === '/api/score' && request.method === 'POST') {
       try {
-        const { dialogueId, segmentId, transcript, language } = await request.json();
+        const body = await request.json();
+        const { dialogueId, segmentId, transcript, language } = body;
 
         if (!transcript?.trim()) {
-          return Response.json({ error: 'No transcript provided' }, { status: 400, headers: corsHeaders });
+          return Response.json({ error: 'No transcript' }, { status: 400, headers: cors });
         }
 
-        const dialogue = DIALOGUES.find(d => d.id === dialogueId);
+        const dialogue = Object.values(DIALOGUES).flat().find(d => d.id === dialogueId);
         const segment = dialogue?.segments.find(s => s.id === segmentId);
-        if (!segment) return Response.json({ error: 'Segment not found' }, { status: 404, headers: corsHeaders });
+        if (!segment) return Response.json({ error: 'Segment not found' }, { status: 404, headers: cors });
 
         if (!env.ANTHROPIC_API_KEY) {
           return Response.json({
             score: 7, passed: true,
-            feedback: 'Demo mode — add ANTHROPIC_API_KEY secret to enable real AI scoring.',
-            keyTerms: []
-          }, { headers: corsHeaders });
+            feedback: 'Demo mode — set ANTHROPIC_API_KEY secret to enable real scoring.',
+            keyTerms: [],
+          }, { headers: cors });
         }
 
-        const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        const prompt = SCORE_PROMPT({
+          sourceText: segment.sourceText,
+          sourceLang: segment.sourceLang,
+          interpretLang: segment.interpretLang,
+          userTranscript: transcript,
+        });
+
+        const aiResp = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
           headers: {
             'x-api-key': env.ANTHROPIC_API_KEY,
@@ -120,21 +266,20 @@ export default {
           },
           body: JSON.stringify({
             model: 'claude-sonnet-4-6',
-            max_tokens: 400,
-            messages: [{ role: 'user', content: SCORE_PROMPT(segment, transcript, language) }]
-          })
+            max_tokens: 500,
+            messages: [{ role: 'user', content: prompt }],
+          }),
         });
 
-        const ai = await resp.json();
-        const text = ai.content?.[0]?.text ?? '{}';
-        const result = JSON.parse(text);
-        return Response.json(result, { headers: corsHeaders });
+        const aiData = await aiResp.json();
+        const raw = aiData.content?.[0]?.text ?? '{}';
+        const result = JSON.parse(raw);
+        return Response.json(result, { headers: cors });
       } catch (e) {
-        return Response.json({ error: e.message }, { status: 500, headers: corsHeaders });
+        return Response.json({ error: e.message }, { status: 500, headers: cors });
       }
     }
 
-    // Fall through to static assets
     return env.ASSETS.fetch(request);
-  }
+  },
 };
