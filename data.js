@@ -71,7 +71,7 @@ export const MASTER = [
   "id": "health-gp",
   "topic": "Health",
   "title": "GP Consultation",
-  "scenario": "A Chinese-speaking patient is visiting a GP clinic. You are the interpreter.",
+  "scenario": "A patient is visiting a GP clinic about severe headaches. You are the interpreter.",
   "scenarioZh": "一位说普通话的病人去看全科医生。你是口译员。",
   "segments": [
    {
@@ -239,7 +239,7 @@ export const MASTER = [
   "id": "employment-interview",
   "topic": "Employment",
   "title": "Job Interview",
-  "scenario": "A Chinese-speaking job seeker is attending an interview at a supermarket. You are the interpreter.",
+  "scenario": "A job seeker is attending an interview for a role at a supermarket. You are the interpreter.",
   "scenarioZh": "一位说普通话的求职者正在接受超市的面试。你是口译员。",
   "segments": [
    {
@@ -407,7 +407,7 @@ export const MASTER = [
   "id": "community-centrelink",
   "topic": "Community Services",
   "title": "Centrelink — JobSeeker",
-  "scenario": "A Chinese-speaking client visits Centrelink to apply for JobSeeker Payment. You are the interpreter.",
+  "scenario": "A client visits Centrelink to apply for the JobSeeker Payment. You are the interpreter.",
   "scenarioZh": "一位说普通话的客户去Centrelink申请求职者付款。你是口译员。",
   "segments": [
    {
