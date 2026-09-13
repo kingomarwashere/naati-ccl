@@ -254,6 +254,12 @@ export default {
       }
       if (p === '/api/stripe/webhook' && request.method === 'POST') {
         const body = await request.text();
+        // verify Stripe signature
+        if (env.STRIPE_WEBHOOK_SECRET) {
+          const sig = request.headers.get('stripe-signature') || '';
+          const ok = await verifyStripeSig(body, sig, env.STRIPE_WEBHOOK_SECRET);
+          if (!ok) return json({ error: 'Invalid signature' }, 400);
+        }
         let event;
         try { event = JSON.parse(body); } catch { return json({ error: 'bad' }, 400); }
         if (event.type === 'checkout.session.completed') {
@@ -273,6 +279,24 @@ export default {
     }
   },
 };
+
+// Verify Stripe webhook signature (HMAC-SHA256 over "timestamp.payload")
+async function verifyStripeSig(payload, header, secret) {
+  try {
+    const parts = Object.fromEntries(header.split(',').map(kv => kv.split('=')));
+    const t = parts.t, v1 = parts.v1;
+    if (!t || !v1) return false;
+    const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret),
+      { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+    const mac = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`${t}.${payload}`));
+    const expected = [...new Uint8Array(mac)].map(b => b.toString(16).padStart(2, '0')).join('');
+    // constant-time-ish compare
+    if (expected.length !== v1.length) return false;
+    let diff = 0;
+    for (let i = 0; i < expected.length; i++) diff |= expected.charCodeAt(i) ^ v1.charCodeAt(i);
+    return diff === 0;
+  } catch { return false; }
+}
 
 function scorePrompt(seg, transcript, langLabel) {
   const enToTarget = seg.lang === 'en-AU';
