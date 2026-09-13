@@ -2,8 +2,7 @@
   "name": "naati-ccl",
   "compatibility_date": "2025-09-13",
   "assets": {
-    "directory": "./public",
-    "binding": "ASSETS"
+    "directory": "./public"
   },
   "routes": [
     {
