@@ -6,6 +6,13 @@
     "directory": "./public",
     "binding": "ASSETS"
   },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "naati-ccl-db",
+      "database_id": "9aa94677-b707-4df2-b270-9168c9d4f24b"
+    }
+  ],
   "routes": [
     {
       "pattern": "naati.theradicalparty.com/*",
