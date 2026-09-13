@@ -270,40 +270,37 @@ export default {
         // Attach scenario context so the prompt has it
         segment._scenarioContext = dialogue.scenario;
 
-        if (!env.ANTHROPIC_API_KEY) {
+        if (!env.DEEPSEEK_API_KEY) {
           return Response.json({
             score: 7, passed: true,
-            feedback: 'Demo mode — ANTHROPIC_API_KEY not set.',
+            feedback: 'Demo mode — DEEPSEEK_API_KEY not set.',
             corrections: [], keyPointsCovered: [],
           }, { headers: cors });
         }
 
-        const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        const resp = await fetch('https://api.deepseek.com/chat/completions', {
           method: 'POST',
           headers: {
-            'x-api-key': env.ANTHROPIC_API_KEY,
-            'anthropic-version': '2023-06-01',
-            'content-type': 'application/json',
+            'Authorization': `Bearer ${env.DEEPSEEK_API_KEY}`,
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'claude-sonnet-4-6',
+            model: 'deepseek-chat',
             max_tokens: 600,
             messages: [{ role: 'user', content: SCORE_PROMPT(segment, transcript) }],
           }),
         });
 
-        const ai  = await resp.json();
+        const ai = await resp.json();
 
-        // Anthropic returns an error object when the key is invalid / out of credits
-        if (ai.type === 'error') {
-          const msg = ai.error?.message ?? 'Anthropic API error';
-          return Response.json({ error: msg }, { status: 502, headers: cors });
+        if (ai.error) {
+          return Response.json({ error: ai.error.message ?? 'DeepSeek API error' }, { status: 502, headers: cors });
         }
 
-        let raw = ai.content?.[0]?.text ?? '{}';
+        let raw = ai.choices?.[0]?.message?.content ?? '{}';
         // extract JSON regardless of markdown fences or leading text
         const jsonMatch = raw.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) throw new Error(`No JSON in Claude response: ${raw.slice(0, 200)}`);
+        if (!jsonMatch) throw new Error(`No JSON in DeepSeek response: ${raw.slice(0, 200)}`);
         const result = JSON.parse(jsonMatch[0]);
         // safety clamp: never show 0 to a learner
         result.score  = Math.max(1, Math.min(10, result.score ?? 1));
