@@ -99,3 +99,15 @@ window.CCL = (function () {
     api, loadUser, signup, login, logout, openAuthModal, requireAuth,
   };
 })();
+
+// PWA: inject manifest + theme colour + register service worker
+(function () {
+  if (!document.querySelector('link[rel="manifest"]')) {
+    const m = document.createElement('link'); m.rel = 'manifest'; m.href = '/manifest.webmanifest'; document.head.appendChild(m);
+    const t = document.createElement('meta'); t.name = 'theme-color'; t.content = '#059669'; document.head.appendChild(t);
+    const a = document.createElement('meta'); a.name = 'apple-mobile-web-app-capable'; a.content = 'yes'; document.head.appendChild(a);
+  }
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+  }
+})();

@@ -180,10 +180,12 @@
     </div>
     <div id="results-body"></div>
     <div id="save-note" class="text-center text-xs text-gray-400 mb-4"></div>
+    <button id="btn-share" class="w-full mb-3 border-2 border-gray-200 hover:border-brand-300 text-gray-700 font-bold py-3 rounded-xl text-sm transition-colors">📤 Share my result</button>
     <div class="flex gap-3">
       <button id="btn-retry" class="flex-1 border-2 border-brand-600 text-brand-600 hover:bg-brand-50 font-bold py-3 rounded-xl text-sm transition-colors">Try again</button>
       <button id="btn-new" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl text-sm transition-colors">Back to menu</button>
     </div>
+    <canvas id="share-canvas" width="1080" height="1080" hidden></canvas>
   </div>
 </div>
 
@@ -478,6 +480,8 @@ function showPracticeResults(){
   $('result-heading').textContent=passed?'Dialogue passed!':'Keep practising';
   $('result-sub').textContent=passed?`You scored ${t}/45 — above the 29 pass mark.`:`You scored ${t}/45. You need ${PASS_MARK-t} more to pass.`;
   $('results-body').innerHTML=resultCard(dialogue,segScores,t);
+  const langLabel=LANGS.find(l=>l.key===selectedLang)?.label||'';
+  lastShare={score:t,max:MAX_SCORE,passed,topic:dialogue.topic,lang:langLabel};
   $('save-note').textContent=CCL.user?'Saved to your progress ✓':'Log in to save your progress and build vocab flashcards.';
   $('btn-retry').textContent='Try again';
 }
@@ -488,6 +492,9 @@ function showExamResults(){
   $('result-heading').textContent=bothPass?'Mock exam passed!':'Not passed yet';
   $('result-sub').textContent=bothPass?'You passed both dialogues — you\'re exam-ready!':'You must score 29/45 on BOTH dialogues to pass the CCL.';
   $('results-body').innerHTML=examResults.map((r,i)=>`<div class="mb-4"><p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Dialogue ${i+1}: ${r.dialogue.topic}</p>${resultCard(r.dialogue,r.segScores,r.total)}</div>`).join('');
+  const examTotal=examResults.reduce((a,r)=>a+r.total,0);
+  const langLabel=LANGS.find(l=>l.key===selectedLang)?.label||'';
+  lastShare={score:examTotal,max:MAX_SCORE*2,passed:bothPass,topic:'Mock Exam',lang:langLabel};
   $('save-note').textContent=CCL.user?'Saved to your progress ✓':'Log in to save your progress.';
   $('btn-retry').textContent='New exam';
 }
@@ -505,6 +512,42 @@ function resultCard(dlg,scores,t){
 
 $('btn-retry').onclick=()=>{ hide('screen-results'); start(); };
 $('btn-new').onclick=()=>{ hide('screen-results'); show('screen-setup'); location.href='/app/practice/'; };
+
+// ── shareable score card ───────────────────────────
+let lastShare={score:0,max:45,passed:false,topic:'',lang:''};
+$('btn-share').onclick=async()=>{
+  const c=$('share-canvas'),x=c.getContext('2d');
+  const {score,max,passed,topic,lang}=lastShare;
+  // bg gradient
+  const g=x.createLinearGradient(0,0,1080,1080);
+  g.addColorStop(0,'#064e3b');g.addColorStop(1,'#059669');
+  x.fillStyle=g;x.fillRect(0,0,1080,1080);
+  x.textAlign='center';
+  x.fillStyle='rgba(255,255,255,.85)';x.font='600 40px Inter,sans-serif';
+  x.fillText('NAATI CCL Practice',540,180);
+  x.font='800 260px Inter,sans-serif';x.fillStyle='#fff';
+  x.fillText(score,540,560);
+  x.font='600 60px Inter,sans-serif';x.fillStyle='rgba(255,255,255,.7)';
+  x.fillText('out of '+max,540,640);
+  // verdict pill
+  x.font='800 54px Inter,sans-serif';
+  x.fillStyle=passed?'#a7f3d0':'#fecaca';
+  x.fillText(passed?'✓ PASSED':'Keep practising',540,760);
+  x.font='500 42px Inter,sans-serif';x.fillStyle='rgba(255,255,255,.85)';
+  x.fillText(`${topic} · ${lang}`,540,850);
+  x.font='600 36px Inter,sans-serif';x.fillStyle='rgba(255,255,255,.6)';
+  x.fillText('naati.theradicalparty.com',540,990);
+
+  c.toBlob(async blob=>{
+    const file=new File([blob],'ccl-result.png',{type:'image/png'});
+    const shareText=`I scored ${score}/${max} on my NAATI CCL ${lang} practice! 🎯`;
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      try{await navigator.share({files:[file],text:shareText,title:'CCL Practice'});return}catch(e){}
+    }
+    // fallback: download
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ccl-result.png';a.click();
+  },'image/png');
+};
 
 speechSynthesis.onvoiceschanged=()=>{};
 init();
