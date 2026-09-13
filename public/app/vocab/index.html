@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vocabulary – CCL Practice</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={theme:{extend:{colors:{brand:{50:'#ecfdf5',100:'#d1fae5',200:'#a7f3d0',400:'#34d399',500:'#10b981',600:'#059669',700:'#047857',900:'#064e3b'}},fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}</script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>[hidden]{display:none!important}</style>
+</head>
+<body class="font-sans bg-gray-50 min-h-screen antialiased">
+
+<nav class="bg-white border-b border-gray-100 h-14 px-4 flex items-center justify-between sticky top-0 z-10">
+  <a href="/" class="font-bold text-brand-700 text-lg tracking-tight">CCL Practice</a>
+  <div class="flex items-center gap-3 text-sm">
+    <a href="/app/" class="text-gray-500 hover:text-brand-600">Dashboard</a>
+    <a href="/app/practice/" class="text-gray-500 hover:text-brand-600">Practice</a>
+    <a href="/app/vocab/" class="text-brand-700 font-semibold">Vocab</a>
+  </div>
+</nav>
+
+<main class="max-w-lg mx-auto px-4 py-10">
+  <h1 class="text-2xl font-extrabold mb-1">Vocabulary</h1>
+  <p class="text-gray-500 text-sm mb-8">Key terms you missed become flashcards. Review them with spaced repetition.</p>
+
+  <div id="empty" hidden class="bg-white border border-gray-200 rounded-2xl p-10 text-center">
+    <div class="text-4xl mb-3">🎉</div>
+    <p class="font-bold text-gray-700 mb-1">Nothing due right now</p>
+    <p class="text-sm text-gray-400 mb-5">Missed terms from your practice appear here. Come back later, or practise more.</p>
+    <a href="/app/practice/" class="inline-block bg-brand-600 text-white font-bold px-6 py-2.5 rounded-xl text-sm">Practice</a>
+  </div>
+
+  <div id="signin" hidden class="bg-white border border-gray-200 rounded-2xl p-10 text-center">
+    <p class="font-bold text-gray-700 mb-1">Sign in to use vocabulary</p>
+    <p class="text-sm text-gray-400 mb-5">Your flashcards are saved to your account.</p>
+    <button id="btn-signin" class="bg-brand-600 text-white font-bold px-6 py-2.5 rounded-xl text-sm">Log in</button>
+  </div>
+
+  <div id="card-area" hidden>
+    <div class="flex justify-between text-xs text-gray-400 mb-3">
+      <span><span id="remaining">0</span> cards due</span>
+      <span id="topic-tag"></span>
+    </div>
+    <div id="card" class="bg-white border border-gray-200 rounded-2xl p-8 min-h-[220px] flex flex-col items-center justify-center text-center cursor-pointer select-none">
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-3">English term</p>
+      <p id="term-en" class="text-2xl font-bold text-gray-900 mb-4"></p>
+      <div id="answer" hidden>
+        <div class="w-16 h-px bg-gray-200 mx-auto mb-4"></div>
+        <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Your language</p>
+        <p id="term-target" class="text-2xl font-bold text-brand-700"></p>
+      </div>
+      <p id="tap-hint" class="text-xs text-gray-300 mt-4">Tap to reveal</p>
+    </div>
+
+    <div id="grade-buttons" hidden class="grid grid-cols-2 gap-3 mt-4">
+      <button id="btn-again" class="bg-red-50 text-red-600 border-2 border-red-100 font-bold py-3 rounded-xl text-sm">Didn't know</button>
+      <button id="btn-good" class="bg-green-50 text-green-700 border-2 border-green-100 font-bold py-3 rounded-xl text-sm">Got it ✓</button>
+    </div>
+  </div>
+</main>
+
+<script src="/app/auth.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+let cards = [], idx = 0;
+
+async function boot() {
+  await CCL.loadUser();
+  if (!CCL.user) { $('signin').hidden = false; return; }
+  const v = await CCL.api('/api/vocab');
+  cards = v.due || [];
+  if (!cards.length) { $('empty').hidden = false; return; }
+  $('card-area').hidden = false;
+  render();
+}
+
+function render() {
+  if (idx >= cards.length) { $('card-area').hidden = true; $('empty').hidden = false; return; }
+  const c = cards[idx];
+  $('remaining').textContent = cards.length - idx;
+  $('topic-tag').textContent = c.topic || '';
+  $('term-en').textContent = c.term_en;
+  $('term-target').textContent = c.term_target || '—';
+  $('answer').hidden = true;
+  $('tap-hint').hidden = false;
+  $('grade-buttons').hidden = true;
+}
+
+$('card').onclick = () => {
+  $('answer').hidden = false;
+  $('tap-hint').hidden = true;
+  $('grade-buttons').hidden = false;
+};
+
+async function grade(correct) {
+  const c = cards[idx];
+  try { await CCL.api('/api/vocab/review', { method:'POST', body: JSON.stringify({ id: c.id, correct }) }); } catch {}
+  idx++;
+  render();
+}
+$('btn-again').onclick = () => grade(false);
+$('btn-good').onclick = () => grade(true);
+$('btn-signin') && ($('btn-signin').onclick = async () => { const u = await CCL.requireAuth(); if (u) location.reload(); });
+
+boot();
+</script>
+</body>
+</html>
