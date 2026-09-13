@@ -1,0 +1,14 @@
+{
+  "name": "naati-ccl",
+  "compatibility_date": "2025-09-13",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+  "routes": [
+    {
+      "pattern": "naati.theradicalparty.com/*",
+      "zone_name": "theradicalparty.com"
+    }
+  ]
+}

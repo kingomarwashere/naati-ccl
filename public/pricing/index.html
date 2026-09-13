@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pricing – CCL Practice</title>
+  <meta name="description" content="Simple one-time pricing for NAATI CCL test preparation. No subscriptions. Start with a free 3-day trial.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={theme:{extend:{colors:{brand:{50:'#eff6ff',100:'#dbeafe',500:'#3b82f6',600:'#2563eb',700:'#1d4ed8',900:'#1e3a8a'}},fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}</script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="font-sans bg-white text-gray-900 antialiased">
+
+<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100">
+  <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+    <a href="/" class="font-bold text-xl text-brand-700 tracking-tight">CCL Practice</a>
+    <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
+      <a href="/how-it-works" class="hover:text-brand-600 transition-colors">How it works</a>
+      <a href="/pricing" class="text-brand-600">Pricing</a>
+      <a href="/faq" class="hover:text-brand-600 transition-colors">FAQ</a>
+    </div>
+    <a href="/signup" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors">Start free</a>
+  </div>
+</nav>
+
+<main class="px-4 py-20">
+  <div class="max-w-xl mx-auto text-center mb-16">
+    <h1 class="text-4xl font-extrabold mb-4">Simple pricing</h1>
+    <p class="text-xl text-gray-500">Pay once for a study pass. Every tier includes a 3-day free trial — no credit card needed.</p>
+  </div>
+
+  <div class="max-w-5xl mx-auto grid md:grid-cols-3 gap-6 mb-12">
+    <div class="border border-gray-200 rounded-2xl p-8 flex flex-col">
+      <div class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Standard · 7 days</div>
+      <div class="text-5xl font-extrabold mb-1">$9</div>
+      <div class="text-gray-400 text-sm mb-8">One-time payment</div>
+      <ul class="space-y-3 text-sm text-gray-600 mb-8 flex-1">
+        <li class="flex gap-3 items-start"><span class="text-brand-500 font-bold mt-0.5">✓</span>50 practice dialogues</li>
+        <li class="flex gap-3 items-start"><span class="text-brand-500 font-bold mt-0.5">✓</span>2 full mock exams</li>
+        <li class="flex gap-3 items-start"><span class="text-brand-500 font-bold mt-0.5">✓</span>AI scoring per segment</li>
+        <li class="flex gap-3 items-start"><span class="text-brand-500 font-bold mt-0.5">✓</span>1 language</li>
+        <li class="flex gap-3 items-start text-gray-300"><span class="font-bold mt-0.5">✗</span>Study plan</li>
+        <li class="flex gap-3 items-start text-gray-300"><span class="font-bold mt-0.5">✗</span>Progress analytics</li>
+      </ul>
+      <a href="/signup" class="block text-center border-2 border-brand-600 text-brand-600 hover:bg-brand-50 font-semibold py-3 rounded-xl transition-colors">Start free trial</a>
+    </div>
+
+    <div class="border-2 border-brand-600 rounded-2xl p-8 flex flex-col relative shadow-lg">
+      <div class="absolute -top-4 left-0 right-0 flex justify-center">
+        <span class="bg-brand-600 text-white text-xs font-bold px-5 py-1.5 rounded-full">Most popular</span>
+      </div>
+      <div class="text-xs font-bold text-brand-600 uppercase tracking-widest mb-3">Pro · 30 days</div>
+      <div class="text-5xl font-extrabold mb-1">$29</div>
+      <div class="text-gray-400 text-sm mb-8">One-time payment</div>
+      <ul class="space-y-3 text-sm text-gray-600 mb-8 flex-1">
+        <li class="flex gap-3 items-start"><span class="text-brand-500 font-bold mt-0.5">✓</span>Unlimited dialogues</li>
+        <li class="flex gap-3 items-start"><span class="text-brand-500 font-bold mt-0.5">✓</span>Unlimited mock exams</li>
+        <li class="flex gap-3 items-start"><span class="text-brand-500 font-bold mt-0.5">✓</span>AI scoring + detailed feedback</li>
+        <li class="flex gap-3 items-start"><span class="text-brand-500 font-bold mt-0.5">✓</span>All 20+ languages</li>
+        <li class="flex gap-3 items-start"><span class="text-brand-500 font-bold mt-0.5">✓</span>Personalised study plan</li>
+        <li class="flex gap-3 items-start"><span class="text-brand-500 font-bold mt-0.5">✓</span>Progress analytics</li>
+      </ul>
+      <a href="/signup" class="block text-center bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 rounded-xl transition-colors">Start free trial</a>
+    </div>
+
+    <div class="border border-gray-200 rounded-2xl p-8 flex flex-col">
+      <div class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Pro · 7 days</div>
+      <div class="text-5xl font-extrabold mb-1">$19</div>
+      <div class="text-gray-400 text-sm mb-8">One-time payment</div>
+      <ul class="space-y-3 text-sm text-gray-600 mb-8 flex-1">
+        <li class="flex gap-3 items-start"><span class="text-brand-500 font-bold mt-0.5">✓</span>Unlimited dialogues</li>
+        <li class="flex gap-3 items-start"><span class="text-brand-500 font-bold mt-0.5">✓</span>5 mock exams</li>
+        <li class="flex gap-3 items-start"><span class="text-brand-500 font-bold mt-0.5">✓</span>AI scoring + detailed feedback</li>
+        <li class="flex gap-3 items-start"><span class="text-brand-500 font-bold mt-0.5">✓</span>All 20+ languages</li>
+        <li class="flex gap-3 items-start text-gray-300"><span class="font-bold mt-0.5">✗</span>Study plan</li>
+        <li class="flex gap-3 items-start text-gray-300"><span class="font-bold mt-0.5">✗</span>Progress analytics</li>
+      </ul>
+      <a href="/signup" class="block text-center border-2 border-brand-600 text-brand-600 hover:bg-brand-50 font-semibold py-3 rounded-xl transition-colors">Start free trial</a>
+    </div>
+  </div>
+
+  <div class="max-w-2xl mx-auto bg-gray-50 rounded-2xl p-8">
+    <h2 class="font-bold text-lg mb-4">Frequently asked pricing questions</h2>
+    <dl class="space-y-4 text-sm">
+      <div>
+        <dt class="font-semibold text-gray-800">What's in the free trial?</dt>
+        <dd class="text-gray-500 mt-1">3 days of full Pro 30-day access — all dialogues, all languages, AI scoring. No credit card required to start.</dd>
+      </div>
+      <div>
+        <dt class="font-semibold text-gray-800">When does the pass expire?</dt>
+        <dd class="text-gray-500 mt-1">The countdown starts when you activate the pass (not when you sign up). You can sit on the free trial indefinitely before activating.</dd>
+      </div>
+      <div>
+        <dt class="font-semibold text-gray-800">Can I get a refund?</dt>
+        <dd class="text-gray-500 mt-1">Yes — if you've completed fewer than 3 dialogues, we'll refund in full. See our <a href="/refunds" class="text-brand-600 hover:underline">refunds policy</a>.</dd>
+      </div>
+    </dl>
+  </div>
+</main>
+
+<footer class="border-t border-gray-100 py-10 px-4">
+  <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-400">
+    <span class="font-bold text-brand-700">CCL Practice</span>
+    <div class="flex gap-6">
+      <a href="/how-it-works" class="hover:text-brand-600">How it works</a>
+      <a href="/faq" class="hover:text-brand-600">FAQ</a>
+      <a href="/privacy" class="hover:text-brand-600">Privacy</a>
+      <a href="/terms" class="hover:text-brand-600">Terms</a>
+    </div>
+    <span>© 2026 CCL Practice</span>
+  </div>
+</footer>
+</body>
+</html>
