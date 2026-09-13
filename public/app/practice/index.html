@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Practice – CCL Practice</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50:'#ecfdf5', 100:'#d1fae5', 200:'#a7f3d0', 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857', 800:'#065f46', 900:'#064e3b' }
+          },
+          fontFamily: { sans: ['Inter','system-ui','sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    @keyframes pulse-ring { 0%{transform:scale(1);opacity:.6} 70%{transform:scale(1.4);opacity:0} 100%{transform:scale(1.4);opacity:0} }
+    .pulse-ring { animation: pulse-ring 1.5s ease-out infinite; }
+    .hidden { display: none !important; }
+    .progress-bar { transition: width 0.4s ease; }
+  </style>
+</head>
+<body class="font-sans bg-gray-50 text-gray-900 antialiased min-h-screen">
+
+<!-- Nav -->
+<nav class="bg-white border-b border-gray-100 px-4 h-14 flex items-center justify-between">
+  <a href="/" class="font-bold text-brand-700 text-lg">CCL Practice</a>
+  <div class="flex items-center gap-4 text-sm">
+    <a href="/app/dashboard" class="text-gray-500 hover:text-brand-600 transition-colors">Dashboard</a>
+    <a href="/pricing" class="bg-brand-600 text-white font-semibold px-3 py-1.5 rounded-lg hover:bg-brand-700 transition-colors">Upgrade</a>
+  </div>
+</nav>
+
+<!-- Setup screen -->
+<div id="screen-setup" class="max-w-2xl mx-auto px-4 py-12">
+  <h1 class="text-3xl font-bold mb-2">Practice session</h1>
+  <p class="text-gray-500 mb-10">Choose your language and topic, then interpret each segment aloud.</p>
+
+  <div class="bg-white rounded-2xl border border-gray-200 p-8 space-y-6">
+    <div>
+      <label class="block text-sm font-semibold text-gray-700 mb-2">Your language</label>
+      <select id="sel-language" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+        <option value="Nepali">Nepali (नेपाली)</option>
+        <option value="Hindi">Hindi (हिंदी)</option>
+        <option value="Tamil">Tamil (தமிழ்)</option>
+        <option value="Bengali">Bengali (বাংলা)</option>
+        <option value="Mandarin">Mandarin (普通话)</option>
+        <option value="Cantonese">Cantonese (廣東話)</option>
+        <option value="Vietnamese">Vietnamese (Tiếng Việt)</option>
+        <option value="Arabic">Arabic (العربية)</option>
+        <option value="Punjabi">Punjabi (ਪੰਜਾਬੀ)</option>
+        <option value="Indonesian">Indonesian (Bahasa Indonesia)</option>
+        <option value="Spanish">Spanish (Español)</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-semibold text-gray-700 mb-2">Topic</label>
+      <div id="topic-grid" class="grid grid-cols-3 gap-2">
+        <button data-topic="health-1" class="topic-btn selected border-2 border-brand-600 bg-brand-50 text-brand-700 rounded-xl py-3 text-sm font-semibold transition-all">
+          🏥 Health
+        </button>
+        <button data-topic="legal-1" class="topic-btn border-2 border-gray-200 bg-white text-gray-600 rounded-xl py-3 text-sm font-semibold transition-all hover:border-brand-300">
+          ⚖️ Legal
+        </button>
+        <button data-topic="community-1" class="topic-btn border-2 border-gray-200 bg-white text-gray-600 rounded-xl py-3 text-sm font-semibold transition-all hover:border-brand-300">
+          🏛️ Community
+        </button>
+      </div>
+    </div>
+
+    <div class="bg-brand-50 border border-brand-100 rounded-xl p-4 text-sm text-brand-800">
+      <p class="font-semibold mb-1">How this works</p>
+      <ul class="space-y-1 text-brand-700">
+        <li>→ Each segment plays once — just like the real exam</li>
+        <li>→ Record your interpretation in <span id="lang-hint" class="font-semibold">Nepali</span></li>
+        <li>→ AI scores each segment against the NAATI rubric</li>
+      </ul>
+    </div>
+
+    <button id="btn-start" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-xl text-base transition-colors">
+      Start practice session →
+    </button>
+  </div>
+</div>
+
+<!-- Session screen -->
+<div id="screen-session" class="hidden max-w-2xl mx-auto px-4 py-8">
+
+  <!-- Progress -->
+  <div class="mb-6">
+    <div class="flex items-center justify-between text-sm text-gray-500 mb-2">
+      <span>Segment <span id="seg-current">1</span> of <span id="seg-total">5</span></span>
+      <span id="seg-topic" class="font-semibold text-brand-700"></span>
+    </div>
+    <div class="bg-gray-200 rounded-full h-2">
+      <div id="progress-bar" class="progress-bar bg-brand-500 h-2 rounded-full" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- Segment card -->
+  <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+
+    <!-- Speaker label -->
+    <div class="bg-gray-50 border-b border-gray-100 px-6 py-3 flex items-center gap-2">
+      <div class="w-2 h-2 bg-brand-500 rounded-full"></div>
+      <span id="seg-speaker" class="text-sm font-semibold text-gray-700"></span>
+    </div>
+
+    <!-- State: ready to play -->
+    <div id="state-ready" class="px-6 py-10 text-center">
+      <div class="text-5xl mb-4">🎧</div>
+      <p class="text-gray-500 mb-6 text-sm">Listen carefully. You can only hear each segment once.</p>
+      <button id="btn-play" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-10 py-4 rounded-xl text-base transition-colors">
+        ▶ Play segment
+      </button>
+    </div>
+
+    <!-- State: playing audio -->
+    <div id="state-playing" class="hidden px-6 py-10 text-center">
+      <div class="relative inline-flex items-center justify-center mb-6">
+        <div class="w-16 h-16 bg-brand-100 rounded-full pulse-ring absolute"></div>
+        <div class="w-16 h-16 bg-brand-500 rounded-full flex items-center justify-center relative">
+          <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+        </div>
+      </div>
+      <p class="text-gray-600 font-medium">Playing…</p>
+      <p class="text-xs text-gray-400 mt-1">Get ready to interpret</p>
+    </div>
+
+    <!-- State: recording -->
+    <div id="state-recording" class="hidden px-6 py-8">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+          <span class="text-sm font-semibold text-red-600">Recording</span>
+        </div>
+        <span id="rec-timer" class="text-sm font-mono text-gray-500">5:00</span>
+      </div>
+
+      <!-- Live transcript -->
+      <div id="live-transcript" class="bg-gray-50 border border-gray-200 rounded-xl p-4 min-h-[80px] text-sm text-gray-600 mb-4 italic">
+        Speak now — your interpretation will appear here…
+      </div>
+
+      <button id="btn-stop" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl transition-colors">
+        ■ Stop recording
+      </button>
+    </div>
+
+    <!-- State: scoring -->
+    <div id="state-scoring" class="hidden px-6 py-10 text-center">
+      <div class="text-4xl mb-4 animate-spin inline-block">⚙️</div>
+      <p class="text-gray-600 font-medium">Scoring your interpretation…</p>
+    </div>
+
+    <!-- State: result -->
+    <div id="state-result" class="hidden px-6 py-6">
+      <!-- Score header -->
+      <div class="flex items-center gap-4 mb-5">
+        <div id="score-circle" class="w-20 h-20 rounded-full flex flex-col items-center justify-center text-white font-extrabold flex-shrink-0">
+          <span id="score-num" class="text-3xl leading-none"></span>
+          <span class="text-xs font-normal opacity-80">/10</span>
+        </div>
+        <div>
+          <div id="score-label" class="font-bold text-lg"></div>
+          <div id="score-feedback" class="text-sm text-gray-500 mt-1"></div>
+        </div>
+      </div>
+
+      <!-- Source text (revealed after attempt) -->
+      <div class="bg-gray-50 rounded-xl p-4 mb-4">
+        <p class="text-xs font-semibold text-gray-400 uppercase mb-1">Source (English)</p>
+        <p id="seg-text-revealed" class="text-sm text-gray-700 leading-relaxed"></p>
+      </div>
+
+      <!-- Key terms -->
+      <div id="key-terms" class="mb-5"></div>
+
+      <!-- Your transcript -->
+      <div class="bg-gray-50 rounded-xl p-4 mb-5">
+        <p class="text-xs font-semibold text-gray-400 uppercase mb-1">Your interpretation (transcribed)</p>
+        <p id="user-transcript" class="text-sm text-gray-600 italic"></p>
+      </div>
+
+      <button id="btn-next" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl transition-colors">
+        Next segment →
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Results screen -->
+<div id="screen-results" class="hidden max-w-2xl mx-auto px-4 py-12">
+  <div class="bg-white rounded-2xl border border-gray-200 p-8 text-center">
+    <div class="text-6xl mb-4">🎉</div>
+    <h2 class="text-3xl font-extrabold mb-2">Session complete!</h2>
+    <div class="text-5xl font-extrabold text-brand-600 my-6">
+      <span id="final-score">0</span><span class="text-2xl text-gray-400">/10 avg</span>
+    </div>
+    <div id="final-verdict" class="inline-block px-5 py-2 rounded-full font-bold text-sm mb-6"></div>
+    <div id="segment-breakdown" class="text-left space-y-2 mb-8"></div>
+    <div class="flex gap-3 justify-center">
+      <button id="btn-retry" class="border-2 border-brand-600 text-brand-600 font-bold px-6 py-3 rounded-xl hover:bg-brand-50 transition-colors">Try again</button>
+      <button id="btn-new" class="bg-brand-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-brand-700 transition-colors">New dialogue</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '';
+let dialogue = null, language = 'Nepali', selectedTopic = 'health-1';
+let segments = [], currentIdx = 0, scores = [], recTimer = null;
+let recognition = null, finalTranscript = '';
+
+// Topic buttons
+document.querySelectorAll('.topic-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.topic-btn').forEach(b => {
+      b.className = 'topic-btn border-2 border-gray-200 bg-white text-gray-600 rounded-xl py-3 text-sm font-semibold transition-all hover:border-brand-300';
+    });
+    btn.className = 'topic-btn selected border-2 border-brand-600 bg-brand-50 text-brand-700 rounded-xl py-3 text-sm font-semibold transition-all';
+    selectedTopic = btn.dataset.topic;
+  });
+});
+
+document.getElementById('sel-language').addEventListener('change', e => {
+  language = e.target.value;
+  document.getElementById('lang-hint').textContent = language;
+});
+
+document.getElementById('btn-start').addEventListener('click', startSession);
+
+async function startSession() {
+  language = document.getElementById('sel-language').value;
+  const res = await fetch(`${API}/api/dialogue/${selectedTopic}`);
+  dialogue = await res.json();
+  segments = dialogue.segments;
+  currentIdx = 0;
+  scores = [];
+
+  document.getElementById('seg-total').textContent = segments.length;
+  document.getElementById('seg-topic').textContent = dialogue.title;
+  document.getElementById('screen-setup').classList.add('hidden');
+  document.getElementById('screen-session').classList.remove('hidden');
+  loadSegment();
+}
+
+function loadSegment() {
+  const seg = segments[currentIdx];
+  document.getElementById('seg-current').textContent = currentIdx + 1;
+  document.getElementById('seg-speaker').textContent = seg.speaker;
+  document.getElementById('progress-bar').style.width = `${(currentIdx / segments.length) * 100}%`;
+  setState('ready');
+}
+
+function setState(name) {
+  ['ready','playing','recording','scoring','result'].forEach(s => {
+    document.getElementById(`state-${s}`).classList.add('hidden');
+  });
+  document.getElementById(`state-${name}`).classList.remove('hidden');
+}
+
+// Play segment via Speech Synthesis
+document.getElementById('btn-play').addEventListener('click', () => {
+  const seg = segments[currentIdx];
+  setState('playing');
+  const utter = new SpeechSynthesisUtterance(seg.text);
+  utter.lang = 'en-AU';
+  utter.rate = 0.9;
+  utter.onend = () => startRecording();
+  speechSynthesis.speak(utter);
+});
+
+function startRecording() {
+  setState('recording');
+  finalTranscript = '';
+  document.getElementById('live-transcript').textContent = 'Speak now — your interpretation will appear here…';
+
+  // Speech recognition
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (SR) {
+    recognition = new SR();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = getLangCode(language);
+    recognition.onresult = e => {
+      let interim = '';
+      finalTranscript = '';
+      for (let i = 0; i < e.results.length; i++) {
+        if (e.results[i].isFinal) finalTranscript += e.results[i][0].transcript + ' ';
+        else interim += e.results[i][0].transcript;
+      }
+      document.getElementById('live-transcript').textContent =
+        (finalTranscript + interim) || 'Listening…';
+    };
+    recognition.onerror = () => {};
+    recognition.start();
+  }
+
+  // 5-minute countdown
+  let secs = 300;
+  updateTimer(secs);
+  recTimer = setInterval(() => {
+    secs--;
+    updateTimer(secs);
+    if (secs <= 0) stopRecording();
+  }, 1000);
+}
+
+function updateTimer(s) {
+  const m = Math.floor(s/60), sec = s%60;
+  document.getElementById('rec-timer').textContent = `${m}:${sec.toString().padStart(2,'0')}`;
+}
+
+document.getElementById('btn-stop').addEventListener('click', stopRecording);
+
+function stopRecording() {
+  clearInterval(recTimer);
+  if (recognition) { recognition.stop(); recognition = null; }
+  submitScore();
+}
+
+async function submitScore() {
+  setState('scoring');
+  const transcript = finalTranscript.trim() || document.getElementById('live-transcript').textContent;
+
+  try {
+    const res = await fetch(`${API}/api/score`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        dialogueId: dialogue.id,
+        segmentId: segments[currentIdx].id,
+        transcript,
+        language
+      })
+    });
+    const result = await res.json();
+    showResult(result, transcript);
+  } catch(e) {
+    showResult({ score:0, passed:false, feedback:'Scoring unavailable.', keyTerms:[] }, transcript);
+  }
+}
+
+function showResult(result, transcript) {
+  scores.push(result.score);
+  setState('result');
+
+  const score = result.score;
+  const circle = document.getElementById('score-circle');
+  const color = score >= 8 ? '#059669' : score >= 6 ? '#d97706' : '#dc2626';
+  circle.style.background = color;
+  document.getElementById('score-num').textContent = score;
+
+  document.getElementById('score-label').textContent =
+    score >= 8 ? '✓ Excellent' : score >= 6 ? '~ Good pass' : '✗ Needs work';
+  document.getElementById('score-label').style.color = color;
+  document.getElementById('score-feedback').textContent = result.feedback;
+
+  document.getElementById('seg-text-revealed').textContent = segments[currentIdx].text;
+  document.getElementById('user-transcript').textContent = transcript || '(no speech detected)';
+
+  // Key terms
+  const kt = document.getElementById('key-terms');
+  if (result.keyTerms?.length) {
+    kt.innerHTML = `<p class="text-xs font-semibold text-gray-400 uppercase mb-2">Key terms</p>
+      <div class="flex flex-wrap gap-2">
+        ${result.keyTerms.map(t => `
+          <span class="px-3 py-1 rounded-full text-xs font-semibold ${t.conveyed
+            ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}">
+            ${t.conveyed ? '✓' : '✗'} ${t.term}
+          </span>`).join('')}
+      </div>`;
+  } else {
+    kt.innerHTML = '';
+  }
+
+  const isLast = currentIdx >= segments.length - 1;
+  document.getElementById('btn-next').textContent = isLast ? 'Finish session ✓' : 'Next segment →';
+}
+
+document.getElementById('btn-next').addEventListener('click', () => {
+  if (currentIdx >= segments.length - 1) {
+    showFinalResults();
+  } else {
+    currentIdx++;
+    loadSegment();
+  }
+});
+
+function showFinalResults() {
+  document.getElementById('screen-session').classList.add('hidden');
+  document.getElementById('screen-results').classList.remove('hidden');
+
+  const avg = scores.length ? Math.round(scores.reduce((a,b) => a+b, 0) / scores.length * 10) / 10 : 0;
+  document.getElementById('final-score').textContent = avg;
+
+  const verdict = document.getElementById('final-verdict');
+  if (avg >= 7) {
+    verdict.textContent = '🎉 Likely to pass';
+    verdict.className = 'inline-block px-5 py-2 rounded-full font-bold text-sm mb-6 bg-green-100 text-green-700';
+  } else {
+    verdict.textContent = '📚 Keep practising';
+    verdict.className = 'inline-block px-5 py-2 rounded-full font-bold text-sm mb-6 bg-amber-100 text-amber-700';
+  }
+
+  document.getElementById('segment-breakdown').innerHTML = scores.map((s, i) => `
+    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+      <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+        style="background:${s >= 8 ? '#059669' : s >= 6 ? '#d97706' : '#dc2626'}">
+        ${s}
+      </div>
+      <div class="text-sm">
+        <span class="font-medium">Segment ${i+1}</span>
+        <span class="text-gray-400 ml-2">${segments[i].speaker} · ${s >= 8 ? 'Excellent' : s >= 6 ? 'Pass' : 'Needs work'}</span>
+      </div>
+    </div>`).join('');
+}
+
+document.getElementById('btn-retry').addEventListener('click', () => {
+  currentIdx = 0; scores = [];
+  document.getElementById('screen-results').classList.add('hidden');
+  document.getElementById('screen-session').classList.remove('hidden');
+  loadSegment();
+});
+
+document.getElementById('btn-new').addEventListener('click', () => {
+  document.getElementById('screen-results').classList.add('hidden');
+  document.getElementById('screen-setup').classList.remove('hidden');
+});
+
+function getLangCode(lang) {
+  const map = {
+    'Nepali':'ne-NP','Hindi':'hi-IN','Tamil':'ta-IN','Bengali':'bn-BD',
+    'Mandarin':'zh-CN','Cantonese':'zh-HK','Vietnamese':'vi-VN',
+    'Arabic':'ar-SA','Punjabi':'pa-IN','Indonesian':'id-ID','Spanish':'es-ES'
+  };
+  return map[lang] || 'en-AU';
+}
+</script>
+</body>
+</html>
