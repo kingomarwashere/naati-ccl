@@ -29,6 +29,7 @@ const LANGUAGES = {
   ko:  { label:'Korean',     native:'한국어',      code:'ko-KR', flag:'🇰🇷' },
   ta:  { label:'Tamil',      native:'தமிழ்',      code:'ta-IN', flag:'🇮🇳' },
   fa:  { label:'Persian',    native:'فارسی',      code:'fa-IR', flag:'🇮🇷' },
+  th:  { label:'Thai',       native:'ภาษาไทย',    code:'th-TH', flag:'🇹🇭' },
 };
 
 const available = Object.keys(LANGUAGES).filter(k => translations[k] && Object.keys(translations[k]).length === master.length);
