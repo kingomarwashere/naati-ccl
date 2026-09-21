@@ -1,5 +1,5 @@
 // CCLingo service worker — cache static shell, never intercept navigations or API.
-const CACHE = 'ccl-v2';
+const CACHE = 'ccl-v3';
 const ASSETS = ['/app/auth.js', '/favicon.svg', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', e => {
