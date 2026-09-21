@@ -1,4 +1,4 @@
-// Shared auth + API helper for CCL Practice app pages.
+// Shared auth + API helper for CCLingo app pages.
 window.CCL = (function () {
   const TOKEN_KEY = 'ccl-token';
   let token = localStorage.getItem(TOKEN_KEY) || null;

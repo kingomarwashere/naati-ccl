@@ -49,6 +49,32 @@ async function createSession(env, userId) {
   return token;
 }
 const today = () => new Date().toISOString().slice(0, 10);
+const yesterday = () => new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+
+// ── gamification (XP + daily streak) ───────────────────────
+// Simple + legible: every 100 XP is a level. XP per dialogue = points earned
+// (min 5) plus a 20-XP pass bonus. Streak = consecutive calendar days practised.
+const levelFor = xp => Math.floor((xp || 0) / 100) + 1;
+async function awardXpAndStreak(env, userId, totalScore, passed) {
+  const xpEarned = Math.max(5, totalScore | 0) + (passed ? 20 : 0);
+  const td = today(), yd = yesterday();
+  const row = await env.DB.prepare(`SELECT xp, streak, best_streak, last_active FROM user_stats WHERE user_id = ?`).bind(userId).first();
+  let xp, streak, best, prevLevel = 1;
+  if (row) {
+    prevLevel = levelFor(row.xp);
+    xp = (row.xp || 0) + xpEarned;
+    streak = row.last_active === td ? row.streak : (row.last_active === yd ? row.streak + 1 : 1);
+    best = Math.max(row.best_streak || 0, streak);
+    await env.DB.prepare(`UPDATE user_stats SET xp=?, streak=?, best_streak=?, last_active=? WHERE user_id=?`)
+      .bind(xp, streak, best, td, userId).run();
+  } else {
+    xp = xpEarned; streak = 1; best = 1;
+    await env.DB.prepare(`INSERT INTO user_stats (user_id, xp, streak, best_streak, last_active) VALUES (?,?,?,?,?)`)
+      .bind(userId, xp, streak, best, td).run();
+  }
+  const level = levelFor(xp);
+  return { xpEarned, xp, level, xpIntoLevel: xp % 100, xpToNext: 100 - (xp % 100), streak, bestStreak: best, leveledUp: level > prevLevel };
+}
 
 export default {
   async fetch(request, env) {
@@ -176,7 +202,8 @@ export default {
            ON CONFLICT(user_id, day) DO UPDATE SET count = count + 1`
         ).bind(u.id, today()));
         if (stmts.length) await env.DB.batch(stmts);
-        return json({ ok: true, attemptId });
+        const gamify = await awardXpAndStreak(env, u.id, totalScore | 0, passed);
+        return json({ ok: true, attemptId, gamify });
       }
 
       // ── progress dashboard ──────────────────────────────
@@ -197,11 +224,18 @@ export default {
         ).bind(u.id).first();
         const topics = (byTopic.results || []).map(t => ({ topic: t.topic, avg: Math.round(t.avg_score * 10) / 10, n: t.n }));
         const weakest = topics.length ? topics.slice().sort((a, b) => a.avg - b.avg)[0] : null;
+        const st = await env.DB.prepare(`SELECT xp, streak, best_streak, last_active FROM user_stats WHERE user_id = ?`).bind(u.id).first();
+        const xp = st?.xp || 0;
+        const streakAlive = st && (st.last_active === today() || st.last_active === yesterday());
+        const stats = {
+          xp, level: levelFor(xp), xpIntoLevel: xp % 100, xpToNext: 100 - (xp % 100),
+          streak: streakAlive ? st.streak : 0, bestStreak: st?.best_streak || 0,
+        };
         return json({
           totalAttempts: agg?.total || 0,
           passes: agg?.passes || 0,
           avgTotal: agg?.avg_total ? Math.round(agg.avg_total * 10) / 10 : 0,
-          topics, weakest, recent: attempts.results || [],
+          topics, weakest, recent: attempts.results || [], stats,
         });
       }
 

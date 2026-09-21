@@ -1,6 +1,6 @@
 {
-  "name": "CCL Practice — NAATI CCL Preparation",
-  "short_name": "CCL Practice",
+  "name": "CCLingo — NAATI CCL Preparation",
+  "short_name": "CCLingo",
   "description": "Practice NAATI CCL interpreting in 10 languages with instant AI scoring.",
   "start_url": "/app/",
   "scope": "/",

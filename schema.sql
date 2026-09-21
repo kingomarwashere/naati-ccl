@@ -60,6 +60,15 @@ CREATE TABLE IF NOT EXISTS vocab (
 );
 CREATE INDEX IF NOT EXISTS idx_vocab_user ON vocab(user_id, due_at);
 
+-- gamification: one row per user (XP, level, daily streak)
+CREATE TABLE IF NOT EXISTS user_stats (
+  user_id     TEXT PRIMARY KEY,
+  xp          INTEGER NOT NULL DEFAULT 0,
+  streak      INTEGER NOT NULL DEFAULT 0,   -- consecutive active days
+  best_streak INTEGER NOT NULL DEFAULT 0,
+  last_active TEXT                          -- YYYY-MM-DD of last practice
+);
+
 -- daily free-tier usage counter
 CREATE TABLE IF NOT EXISTS usage (
   user_id  TEXT NOT NULL,

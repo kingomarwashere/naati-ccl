@@ -1,4 +1,4 @@
-// SEO page generator for CCL Practice.
+// SEO page generator for CCLingo.
 // Regenerates the per-language landing pages, the /ccl-practice/ hub and
 // sitemap.xml from a single source of truth. Run: node gen-seo.js
 //
@@ -68,7 +68,7 @@ function langPage(L) {
         '@type': 'Course',
         name: `NAATI CCL ${L.label} Practice Test`,
         description: `Online NAATI CCL ${L.label} interpreting practice with realistic dialogues, full mock exams and instant AI scoring against the official 0–5 marking criteria.`,
-        provider: { '@type': 'Organization', name: 'CCL Practice', url: ORIGIN },
+        provider: { '@type': 'Organization', name: 'CCLingo', url: ORIGIN },
         inLanguage: 'en',
         teaches: `NAATI CCL ${L.label} interpreting`,
         isAccessibleForFree: true,
@@ -77,7 +77,7 @@ function langPage(L) {
           '@type': 'CourseInstance',
           courseMode: 'online',
           courseWorkload: 'PT4H',
-          instructor: { '@type': 'Organization', name: 'CCL Practice' },
+          instructor: { '@type': 'Organization', name: 'CCLingo' },
         },
       },
       {
@@ -120,7 +120,7 @@ function langPage(L) {
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#059669">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="CCL Practice">
+<meta property="og:site_name" content="CCLingo">
 <meta property="og:locale" content="en_AU">
 <meta property="og:title" content="${esc(`NAATI CCL ${L.label} Practice Test — Free Online`)}">
 <meta property="og:description" content="${esc(`Practice ${L.label} CCL dialogues with instant AI scoring. Earn 5 points toward Australian PR — free to start.`)}">
@@ -139,7 +139,7 @@ function langPage(L) {
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body class="font-sans bg-white text-gray-900 antialiased">
-<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100"><div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between"><a href="/" class="font-bold text-xl text-brand-700 tracking-tight">CCL Practice</a><a href="/app/practice/?lang=${L.appLang}" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-4 py-2 rounded-lg">Practice ${L.label} free</a></div></nav>
+<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100"><div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between"><a href="/" class="font-bold text-xl text-brand-700 tracking-tight">CCLingo</a><a href="/app/practice/?lang=${L.appLang}" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-4 py-2 rounded-lg">Practice ${L.label} free</a></div></nav>
 
 <nav aria-label="Breadcrumb" class="max-w-3xl mx-auto px-4 pt-5 text-xs text-gray-400"><a href="/" class="hover:text-brand-600">Home</a> › <a href="/ccl-practice/" class="hover:text-brand-600">CCL Practice Tests</a> › <span class="text-gray-600">${L.label}</span></nav>
 
@@ -177,7 +177,7 @@ ${['Health & medical','Legal','Employment','Housing & tenancy','Education','Bank
 <p class="text-sm"><a href="/ccl-practice/" class="text-brand-600 hover:underline">See all NAATI CCL practice tests →</a></p>
 </main>
 
-<footer class="border-t border-gray-100 py-8 px-4 text-center text-xs text-gray-400"><div class="max-w-3xl mx-auto space-y-2"><div class="flex flex-wrap justify-center gap-4"><a href="/how-it-works" class="hover:text-brand-600">How it works</a><a href="/pricing" class="hover:text-brand-600">Pricing</a><a href="/faq" class="hover:text-brand-600">FAQ</a><a href="/about" class="hover:text-brand-600">About</a></div><div>© 2026 CCL Practice · Independent NAATI CCL preparation, not affiliated with NAATI.</div></div></footer>
+<footer class="border-t border-gray-100 py-8 px-4 text-center text-xs text-gray-400"><div class="max-w-3xl mx-auto space-y-2"><div class="flex flex-wrap justify-center gap-4"><a href="/how-it-works" class="hover:text-brand-600">How it works</a><a href="/pricing" class="hover:text-brand-600">Pricing</a><a href="/faq" class="hover:text-brand-600">FAQ</a><a href="/about" class="hover:text-brand-600">About</a></div><div>© 2026 CCLingo · Independent NAATI CCL preparation, not affiliated with NAATI.</div></div></footer>
 </body></html>`;
 }
 
@@ -218,7 +218,7 @@ function hubPage() {
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#059669">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="CCL Practice">
+<meta property="og:site_name" content="CCLingo">
 <meta property="og:locale" content="en_AU">
 <meta property="og:title" content="NAATI CCL Practice Tests — All 11 Languages">
 <meta property="og:description" content="Free NAATI CCL practice in 11 languages with instant AI scoring. Earn 5 points toward Australian PR.">
@@ -236,12 +236,12 @@ function hubPage() {
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body class="font-sans bg-white text-gray-900 antialiased">
-<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100"><div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between"><a href="/" class="font-bold text-xl text-brand-700">CCL Practice</a><a href="/app/practice/" class="bg-brand-600 text-white text-sm font-semibold px-4 py-2 rounded-lg">Start free</a></div></nav>
+<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100"><div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between"><a href="/" class="font-bold text-xl text-brand-700">CCLingo</a><a href="/app/practice/" class="bg-brand-600 text-white text-sm font-semibold px-4 py-2 rounded-lg">Start free</a></div></nav>
 <nav aria-label="Breadcrumb" class="max-w-4xl mx-auto px-4 pt-5 text-xs text-gray-400"><a href="/" class="hover:text-brand-600">Home</a> › <span class="text-gray-600">CCL Practice Tests</span></nav>
 <header class="pt-10 pb-8 px-4 max-w-4xl mx-auto text-center"><h1 class="text-4xl font-extrabold mb-4">NAATI CCL Practice Tests</h1><p class="text-lg text-gray-500 max-w-2xl mx-auto">Choose your language and start practising for free. Realistic interpreting dialogues, instant AI scoring against the 29/45 pass mark, and full mock exams — everything you need to earn your 5 migration points.</p></header>
 <main class="px-4 max-w-4xl mx-auto pb-16"><div class="grid sm:grid-cols-2 gap-3">${cards}</div>
 <section class="mt-14 text-sm text-gray-600 leading-relaxed"><h2 class="text-2xl font-bold text-gray-900 mb-4">About the NAATI CCL test</h2><p class="mb-4">The Credentialed Community Language (CCL) test is a NAATI-administered exam that assesses your ability to interpret spoken dialogue between English and another community language. It is made up of two dialogues of around 300 words each. Passing awards <strong>5 bonus points</strong> toward the points-tested Australian skilled migration visas — subclasses 189, 190 and 491.</p><p>Pick your language above to practise realistic CCL dialogues, sit full mock exams, and get instant AI feedback scored against the official 0–5 marking criteria.</p></section></main>
-<footer class="border-t border-gray-100 py-8 px-4 text-center text-xs text-gray-400">© 2026 CCL Practice · Independent NAATI CCL preparation, not affiliated with NAATI.</footer>
+<footer class="border-t border-gray-100 py-8 px-4 text-center text-xs text-gray-400">© 2026 CCLingo · Independent NAATI CCL preparation, not affiliated with NAATI.</footer>
 </body></html>`;
 }
 

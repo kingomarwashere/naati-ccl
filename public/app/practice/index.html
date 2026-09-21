@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Practice – CCL Practice</title>
+  <title>Practice – CCLingo</title>
   <meta name="description" content="Practice NAATI CCL interpreting. 13 segments alternating English and your language, scored 0–5, 45 total, 29 to pass.">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -20,7 +20,7 @@
 <body class="font-sans bg-gray-50 min-h-screen antialiased">
 
 <nav class="bg-white border-b border-gray-100 h-14 px-4 flex items-center justify-between sticky top-0 z-10">
-  <a href="/app/" class="font-bold text-brand-700 text-lg tracking-tight">CCL Practice</a>
+  <a href="/app/" class="font-bold text-brand-700 text-lg tracking-tight">CCLingo</a>
   <div class="flex items-center gap-3">
     <div id="nav-score" hidden class="text-xs font-bold tabular-nums">
       <span id="nav-score-val" class="text-brand-700">0</span><span class="text-gray-300">/45</span>
@@ -177,6 +177,13 @@
       <div id="result-icon" class="text-5xl mb-3"></div>
       <h2 id="result-heading" class="text-2xl font-extrabold mb-1"></h2>
       <p id="result-sub" class="text-gray-400 text-sm"></p>
+    </div>
+    <div id="gamify-banner" hidden class="bg-gradient-to-br from-brand-600 to-brand-800 text-white rounded-2xl p-4 mb-6 flex items-center justify-around text-center">
+      <div><div class="text-2xl font-extrabold leading-none">+<span id="g-xp">0</span></div><div class="text-[11px] text-brand-100 mt-0.5">XP earned</div></div>
+      <div class="w-px h-8 bg-white/20"></div>
+      <div><div class="text-2xl font-extrabold leading-none">🔥 <span id="g-streak">0</span></div><div class="text-[11px] text-brand-100 mt-0.5">day streak</div></div>
+      <div class="w-px h-8 bg-white/20"></div>
+      <div><div class="text-2xl font-extrabold leading-none">Lv <span id="g-level">1</span></div><div class="text-[11px] text-brand-100 mt-0.5"><span id="g-levelup" hidden>Level up! 🎉</span><span id="g-tonext"></span></div></div>
     </div>
     <div id="results-body"></div>
     <div id="save-note" class="text-center text-xs text-gray-400 mb-4"></div>
@@ -466,15 +473,28 @@ function endDialogue(){
 async function saveAttempt(mode){
   if(!CCL.user)return;
   const t=total();
-  try{await CCL.api('/api/attempt',{method:'POST',body:JSON.stringify({
-    dialogueId:dialogue.id,topic:dialogue.topic,lang:selectedLang,mode,
-    segments:segments.map((s,i)=>({segmentId:s.id,score:typeof segScores[i]==='number'?segScores[i]:0})).filter((_,i)=>segments[i].marked),
-    totalScore:t,maxScore:MAX_SCORE,passed:t>=PASS_MARK,missedVocab
-  })})}catch(e){}
+  try{
+    const res=await CCL.api('/api/attempt',{method:'POST',body:JSON.stringify({
+      dialogueId:dialogue.id,topic:dialogue.topic,lang:selectedLang,mode,
+      segments:segments.map((s,i)=>({segmentId:s.id,score:typeof segScores[i]==='number'?segScores[i]:0})).filter((_,i)=>segments[i].marked),
+      totalScore:t,maxScore:MAX_SCORE,passed:t>=PASS_MARK,missedVocab
+    })});
+    if(res&&res.gamify)renderGamify(res.gamify);
+  }catch(e){}
+}
+function renderGamify(g){
+  const b=$('gamify-banner');if(!b)return;
+  // for exams the first dialogue also awards; keep the latest (cumulative) values
+  $('g-xp').textContent=g.xpEarned;
+  $('g-streak').textContent=g.streak;
+  $('g-level').textContent=g.level;
+  $('g-levelup').hidden=!g.leveledUp;
+  $('g-tonext').textContent=g.leveledUp?'':`${g.xpToNext} XP to Lv ${g.level+1}`;
+  b.hidden=false;
 }
 
 function showPracticeResults(){
-  hide('screen-session');show('screen-results');hide('nav-score');
+  hide('screen-session');show('screen-results');hide('nav-score');$('gamify-banner').hidden=true;
   const t=total(),passed=t>=PASS_MARK;
   $('result-icon').textContent=passed?'🎉':'📚';
   $('result-heading').textContent=passed?'Dialogue passed!':'Keep practising';
@@ -486,7 +506,7 @@ function showPracticeResults(){
   $('btn-retry').textContent='Try again';
 }
 function showExamResults(){
-  hide('screen-session');show('screen-results');hide('nav-score');
+  hide('screen-session');show('screen-results');hide('nav-score');$('gamify-banner').hidden=true;
   const bothPass=examResults.every(r=>r.total>=PASS_MARK);
   $('result-icon').textContent=bothPass?'🎉':'📚';
   $('result-heading').textContent=bothPass?'Mock exam passed!':'Not passed yet';
@@ -524,7 +544,7 @@ $('btn-share').onclick=async()=>{
   x.fillStyle=g;x.fillRect(0,0,1080,1080);
   x.textAlign='center';
   x.fillStyle='rgba(255,255,255,.85)';x.font='600 40px Inter,sans-serif';
-  x.fillText('NAATI CCL Practice',540,180);
+  x.fillText('NAATI CCLingo',540,180);
   x.font='800 260px Inter,sans-serif';x.fillStyle='#fff';
   x.fillText(score,540,560);
   x.font='600 60px Inter,sans-serif';x.fillStyle='rgba(255,255,255,.7)';
@@ -542,7 +562,7 @@ $('btn-share').onclick=async()=>{
     const file=new File([blob],'ccl-result.png',{type:'image/png'});
     const shareText=`I scored ${score}/${max} on my NAATI CCL ${lang} practice! 🎯`;
     if(navigator.canShare&&navigator.canShare({files:[file]})){
-      try{await navigator.share({files:[file],text:shareText,title:'CCL Practice'});return}catch(e){}
+      try{await navigator.share({files:[file],text:shareText,title:'CCLingo'});return}catch(e){}
     }
     // fallback: download
     const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ccl-result.png';a.click();
