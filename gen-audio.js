@@ -43,11 +43,36 @@ const EN_VOICE = {
 // multilingual model falls back to a versatile default that speaks the language.
 // Add more native voices to the account and map them here to lift quality.
 const DEFAULT_LOTE = { m: 'IKne3meq5aSn9XLyUdCD', f: 'EXAVITQu4vr4xnSDxMaL' }; // Charlie / Sarah
+// Native voice per language (added to the account via `--add-voices`; see voices.json).
+// fa (Persian) and th (Thai) have no native library voices → multilingual fallback.
 const LOTE_VOICE = {
-  zh: { m: '76X7rrvQajZEHM3u9zcd', f: 'SyNyPD84lTuHqi1HONfV' }, // Mr David / Willow (native)
-  // yue, pa, hi, ne, vi, ar, ko, ta, fa, th → DEFAULT_LOTE until native voices added
+  zh:  { m: '76X7rrvQajZEHM3u9zcd', f: 'SyNyPD84lTuHqi1HONfV' }, // Mr David / Willow
+  yue: { m: 'KuIqDaMc7NB5yIasXZ0d', f: '7qtJVw7zgHfL86X7sndX' }, // Felix / Coco (HK Cantonese)
+  pa:  { m: 'HkrBPy9A2svfb9tZ9YaL', f: 'vT0wMbLG5dssaBsksrb6' }, // Sufi / Noor
+  hi:  { m: 'HOHisvZQEvTy8Ddc7Z83', f: 'IzQxb6JkxyJg77HNbm6b' }, // Rinku / Anjura
+  ne:  { m: 'qEvUQh8PxrzNFap49hNm', f: 'IzQxb6JkxyJg77HNbm6b' }, // Ananta / (Anjura hi-female)
+  vi:  { m: '1Eq78amaAU40yAkJJN4x', f: 'MfXXiGR0HCVHHuMqcUJM' }, // Nguyen Son / Thuy Duong
+  ar:  { m: 'y5pOCCLIWffhR8D53mTi', f: 'R5kMoWNNTn84ezIJA53m' }, // Mohamed / Wiam (MSA)
+  ko:  { m: 'GNmgFU0yNiLKxTCw3OT9', f: 'vn80HZNY7EsdYzoFRYZm' }, // Shin / SK
+  ta:  { m: 'FQKHTVbUuJBaI8I2cdh3', f: 'mJIsuGDl6enE1SPIeU5z' }, // Karikalan / Vennila
+  // fa, th → DEFAULT_LOTE (no native voice available)
 };
 const loteVoice = (lang, g) => (LOTE_VOICE[lang] || DEFAULT_LOTE)[g] || DEFAULT_LOTE[g];
+
+async function addVoices() {
+  const { voices } = JSON.parse(fs.readFileSync(path.join(__dirname, 'voices.json'), 'utf8'));
+  let added = 0, already = 0, failed = 0;
+  for (const v of voices) {
+    const res = await fetch(`https://api.elevenlabs.io/v1/voices/add/${v.owner}/${v.vid}`, {
+      method: 'POST', headers: { 'xi-api-key': API_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ new_name: v.name }),
+    });
+    if (res.ok) { added++; console.log(`+ ${v.name}`); }
+    else { const t = await res.text(); if (/already|exists|max.*voice|voice_add/i.test(t)) { already++; console.log(`= ${v.name} (exists or slot limit)`); } else { failed++; console.error(`✗ ${v.name}: ${res.status} ${t.slice(0,120)}`); } }
+    await sleep(200);
+  }
+  console.log(`\nadd-voices: added=${added} existing=${already} failed=${failed}`);
+}
 
 // ── gender map ──────────────────────────────────────────────
 // Per dialogue, gender for each speaker. Honors explicit cues in the script
@@ -83,6 +108,7 @@ async function tts(text, voiceId) {
 }
 
 async function main() {
+  if (argv.includes('--add-voices')) return addVoices();
   const langs = (onlyLangs.length ? onlyLangs : AVAILABLE).filter(l => AVAILABLE.includes(l));
   let planned = 0, rendered = 0, skipped = 0, chars = 0;
 

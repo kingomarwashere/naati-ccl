@@ -1,0 +1,23 @@
+{
+  "_comment": "Native ElevenLabs voices for CCLingo audio. Run `node gen-audio.js --add-voices` to add them to the account (needs a plan with enough voice slots — Starter=10, Creator=30). vid=voice_id, owner=public_owner_id. fa/th have no native library voices → they use the DEFAULT_LOTE multilingual fallback in gen-audio.js.",
+  "voices": [
+    { "name": "CCLingo-AU-Female",  "vid": "M7ya1YbaeFaPXljg9BpK", "owner": "64e8539d0ec9b91f065bce797a5fe3d16784c2c9b8033ed6461fe656f01065eb", "note": "Hannah AU female (English side)" },
+    { "name": "CCLingo-ZH-Male",    "vid": "76X7rrvQajZEHM3u9zcd", "owner": "6cceb7a4f8b967910de471e13e67fde206a5641f0ab38b72670f07a2400e0c8a" },
+    { "name": "CCLingo-ZH-Female",  "vid": "SyNyPD84lTuHqi1HONfV", "owner": "93e963ee7f1c0c3204cf204c4b6ee2630d1ecb1ebd83ba6d20ee3529e082ea2a" },
+    { "name": "CCLingo-YUE-Male",   "vid": "KuIqDaMc7NB5yIasXZ0d", "owner": "62f3bb81867e48d6699482caab37943d7876ee3c59f7288c9ccf81ec1491aafd" },
+    { "name": "CCLingo-YUE-Female", "vid": "7qtJVw7zgHfL86X7sndX", "owner": "790b44b9b5211254859d85261dfeff27117320f887b1dfa748b30154f485d10c" },
+    { "name": "CCLingo-PA-Male",    "vid": "HkrBPy9A2svfb9tZ9YaL", "owner": "7398804d9eaf2f463899a907587c33a390591775784f87857b6d0e1e4e3e66f6" },
+    { "name": "CCLingo-PA-Female",  "vid": "vT0wMbLG5dssaBsksrb6", "owner": "91c04fef7781eb87602c24f39d3d241dcfb91c0dc0c2b594d83db0cd670e6201" },
+    { "name": "CCLingo-HI-Male",    "vid": "HOHisvZQEvTy8Ddc7Z83", "owner": "7398804d9eaf2f463899a907587c33a390591775784f87857b6d0e1e4e3e66f6" },
+    { "name": "CCLingo-HI-Female",  "vid": "IzQxb6JkxyJg77HNbm6b", "owner": "7398804d9eaf2f463899a907587c33a390591775784f87857b6d0e1e4e3e66f6" },
+    { "name": "CCLingo-NE-Male",    "vid": "qEvUQh8PxrzNFap49hNm", "owner": "a4dc723400cfd0fecbc6116cd5f80ad34a250765838de662465e51c4dcf56aa7" },
+    { "name": "CCLingo-VI-Male",    "vid": "1Eq78amaAU40yAkJJN4x", "owner": "004974ed56b8706c8b463d2584a6e1716ce89e871f3dba3b16e1ee6298374c95" },
+    { "name": "CCLingo-VI-Female",  "vid": "MfXXiGR0HCVHHuMqcUJM", "owner": "c351ca93483dfa8eb028fd61a9e05b1156a6c93b0ca5d0b0bad3233561b29bc7" },
+    { "name": "CCLingo-AR-Male",    "vid": "y5pOCCLIWffhR8D53mTi", "owner": "90cfcc7ecb811888abbca19cbb22314ca4ef2a44df3363a8d9fba5b5fa20d285" },
+    { "name": "CCLingo-AR-Female",  "vid": "R5kMoWNNTn84ezIJA53m", "owner": "56dab889c51c48c05b6f7d00eae43e9bc2b294c22cfb50a6c3a19f3ef6298461" },
+    { "name": "CCLingo-KO-Male",    "vid": "GNmgFU0yNiLKxTCw3OT9", "owner": "77bf21f6f99297f81dc74251391bc4972a608d4299ef49f4de2d7b1a96cd145b" },
+    { "name": "CCLingo-KO-Female",  "vid": "vn80HZNY7EsdYzoFRYZm", "owner": "8d4e6072fe359333deab70fe9af0b85da2fd7e51d1edc6a1155ce3b20c766500" },
+    { "name": "CCLingo-TA-Male",    "vid": "FQKHTVbUuJBaI8I2cdh3", "owner": "57044162ba783eeb9bd09ea5ff23c4a720e5c4c023c3e2562589236bbaff5eef" },
+    { "name": "CCLingo-TA-Female",  "vid": "mJIsuGDl6enE1SPIeU5z", "owner": "7398804d9eaf2f463899a907587c33a390591775784f87857b6d0e1e4e3e66f6" }
+  ]
+}
